@@ -1,0 +1,32 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'eclipse'
+}
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    implementation 'com.google.guava:guava:28.0-jre'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.5.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.5.1'
+    testCompile "org.jmockit:jmockit:1.49"
+    
+    compile group: 'com.google.inject', name: 'guice', version: '4.2.2'
+    
+}
+
+application {
+    mainClassName = 'com.greenland.balanceManager.java.app.App'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+test {
+    jvmArgs "-javaagent:${classpath.find { it.name.contains("jmockit") }.absolutePath}"
+}
