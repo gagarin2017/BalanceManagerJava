@@ -5,11 +5,12 @@ package com.greenland.balanceManager.java.app;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.greenland.balanceManager.java.app.exceptions.TransactionsNotFoundException;
 import com.greenland.balanceManager.java.app.services.TransactionComparatorService;
 
 public class App {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws TransactionsNotFoundException {
 
         final Injector injector = Guice.createInjector(new BalanceManagerJavaAppModule());
         final TransactionComparatorService transactionComparatorService = injector.getInstance(TransactionComparatorService.class);
