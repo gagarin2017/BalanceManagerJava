@@ -3,7 +3,6 @@ package com.greenland.balanceManager.java.app.services;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -20,8 +19,10 @@ import com.greenland.balanceManager.java.app.model.TransactionsFileReader;
 import com.greenland.balanceManager.java.app.model.TxDataRow;
 
 import mockit.Expectations;
+import mockit.Injectable;
 import mockit.Mock;
 import mockit.MockUp;
+import mockit.Mocked;
 import mockit.Tested;
 
 public class TransactionsFileReaderTest {
@@ -33,6 +34,12 @@ public class TransactionsFileReaderTest {
 	
 	@Tested
 	private TransactionsFileReader transactionsFileReader;
+	
+	@Injectable
+	private TransactionDataRowService transactionDataRowService;
+	
+	@Mocked
+	private TxDataRow txDataRow;
 	
     @Test
     @DisplayName("Config file is incorrect. File doesnt exist - exception thrown")
@@ -92,17 +99,29 @@ public class TransactionsFileReaderTest {
     }
     
     @Test
-    @Tag("integrationTest")
-    @DisplayName("Read Test file 01 (csv) and check the transactions (remote)")
-    void readTransactionsFromTheFile_testFile_Remote_Valid_4_transactions_on_the_sameDay() throws IOException {
+    @DisplayName("Read Test file 01 (csv) and see if all lines are read (remote)")
+    void readTransactionsFromTheFile_testFile_Remote_six_lines_in_file() throws IOException {
     	// Setup
     	final String testFileName = TEST_DATA_DIR + TransactionsFileReader.FS + "readTransactionsFromTheFile_01.csv";
-
+    	final int numberOfLinesInFile = 6;
+    	
+    	new Expectations() {
+    		{
+    			transactionDataRowService.parseRemoteFileTransaction(anyString);
+    			result = txDataRow;
+    			times = numberOfLinesInFile;
+    			
+    			transactionDataRowService.parseLocalFileTransaction(anyString);
+    			result = txDataRow;
+    			times = 0;
+    		}
+    	};
+    	
     	// Method under test
     	final Map<LocalDate, List<TxDataRow>> resultTransactionsMap = transactionsFileReader.readTransactionsFromTheFile(testFileName, true);
     	
-    	assertThat("Only one record as all transactions occurred on the same date", resultTransactionsMap.size(), is(1));
-    	assertThat("4 valid lines / transactions in the file", resultTransactionsMap.entrySet().iterator().next().getValue().size(), is(4));
+    	assertThat("All lines are valid \"transactions\" - one Entry in map ", resultTransactionsMap.size(), is(1));
+    	assertThat("Check if all \"transactions\" are read from the file", resultTransactionsMap.entrySet().iterator().next().getValue().size(), is(numberOfLinesInFile));
     }
     
     @Test
@@ -130,23 +149,29 @@ public class TransactionsFileReaderTest {
      }
     
     @Test
-    @Tag("integrationTest")
-    @DisplayName("Read Test file 01 (txt) and check the transactions (local)")
-    void readTransactionsFromTheFile_testFile_Local_Valid_7_transactions_on_2_dates() throws IOException {
+    @DisplayName("Read Test file 01 (txt) and see if all lines are read (local)")
+    void readTransactionsFromTheFile_testFile_Local_fourteen_lines_in_file() throws IOException {
     	// Setup
     	final String testFileName = TEST_DATA_DIR + TransactionsFileReader.FS + "readTransactionsFromTheFile_01.txt";
-
-    	final LocalDate expectedDate1 = LocalDate.of(2016, 11, 1);
-    	final LocalDate expectedDate2 = LocalDate.of(2017, 1, 23);
-
+    	final int numberOfLinesInFile = 14;
+    	
+    	new Expectations() {
+    		{
+    			transactionDataRowService.parseRemoteFileTransaction(anyString);
+    			result = txDataRow;
+    			times = 0;
+    			
+    			transactionDataRowService.parseLocalFileTransaction(anyString);
+    			result = txDataRow;
+    			times = numberOfLinesInFile;
+    		}
+    	};
+    	
     	// Method under test
     	final Map<LocalDate, List<TxDataRow>> resultTransactionsMap = transactionsFileReader.readTransactionsFromTheFile(testFileName, false);
-    	
-    	assertThat("Check for 2 entries as transactions occurred on two separate dates", resultTransactionsMap.size(), is(2));
-		assertTrue(resultTransactionsMap.containsKey(expectedDate1));
-		assertTrue(resultTransactionsMap.containsKey(expectedDate2));
-    	
-    	assertThat("1 valid lines / transactions in the file for the date "+expectedDate1, resultTransactionsMap.get(expectedDate1).size(), is(1));
-    	assertThat("6 valid lines / transactions in the file for the date "+expectedDate2, resultTransactionsMap.get(expectedDate2).size(), is(6));
-    }
+
+       	assertThat("All lines are valid \"transactions\" - one Entry in map ", resultTransactionsMap.size(), is(1));
+    	assertThat("Check if all \"transactions\" are read from the file", resultTransactionsMap.entrySet().iterator().next().getValue().size(), is(numberOfLinesInFile));
+
+   }
 }

@@ -14,6 +14,9 @@ import java.util.Scanner;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import com.google.inject.Inject;
+import com.greenland.balanceManager.java.app.services.TransactionDataRowService;
+
 /**
  * {@link TransactionsSourceDao} dao implementation to read the transactions from the file.
  * 
@@ -24,6 +27,9 @@ public class TransactionsFileReader implements TransactionsSourceDao {
 	
 	private static final String CONFIG_PROPERTIES_FILE_NAME = "config.properties";
 	public static final String FS = System.getProperty("file.separator");
+	
+	@Inject
+	private TransactionDataRowService transactionDataRowService;
 	
 	@Override
 	public void populateTxMapsFromSource(final Map<LocalDate, List<TxDataRow>> remoteTransactionMap,
@@ -81,8 +87,8 @@ public class TransactionsFileReader implements TransactionsSourceDao {
 
 		while (fileReader.hasNextLine()) {
 			final String data = fileReader.nextLine();
-			final TxDataRow txDataRow = isRemote ? TxDataRow.parseRemoteFileTransaction(data)
-					: TxDataRow.parseLocalFileTransaction(data);
+			final TxDataRow txDataRow = isRemote ? transactionDataRowService.parseRemoteFileTransaction(data)
+					: transactionDataRowService.parseLocalFileTransaction(data);
 			if (txDataRow != null /* && !txDataRow.isReconsiled() */)
 				putTxDataRowToMap(transactionsMap, txDataRow);
 		}
