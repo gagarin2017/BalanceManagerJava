@@ -11,7 +11,6 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -98,18 +97,7 @@ public class TransactionsFileReaderTest {
     void readTransactionsFromTheFile_testFile_Remote_Valid_4_transactions_on_the_sameDay() throws IOException {
     	// Setup
     	final String testFileName = TEST_DATA_DIR + TransactionsFileReader.FS + "readTransactionsFromTheFile_01.csv";
-    	final int noOfLinesInFile = 6;
 
-    	new Expectations() {
-    		{
-				TxDataRow.parseRemoteFileTransaction(anyString);
-				times = noOfLinesInFile;
-				
-				TxDataRow.parseLocalFileTransaction(anyString);
-				times = 0;
-    		}
-    	};
-    	
     	// Method under test
     	final Map<LocalDate, List<TxDataRow>> resultTransactionsMap = transactionsFileReader.readTransactionsFromTheFile(testFileName, true);
     	
@@ -139,7 +127,7 @@ public class TransactionsFileReaderTest {
     	// Method under test
     	assertThrows(FileNotFoundException.class, 
     			() -> transactionsFileReader.readTransactionsFromTheFile(testFileName, false));
-    }
+     }
     
     @Test
     @Tag("integrationTest")
@@ -147,21 +135,10 @@ public class TransactionsFileReaderTest {
     void readTransactionsFromTheFile_testFile_Local_Valid_7_transactions_on_2_dates() throws IOException {
     	// Setup
     	final String testFileName = TEST_DATA_DIR + TransactionsFileReader.FS + "readTransactionsFromTheFile_01.txt";
-    	final int noOfLinesInFile = 1;
 
     	final LocalDate expectedDate1 = LocalDate.of(2016, 11, 1);
     	final LocalDate expectedDate2 = LocalDate.of(2017, 1, 23);
 
-    	new Expectations() {
-    		{
-//				TxDataRow.parseRemoteFileTransaction(anyString);
-//				times = noOfLinesInFile;
-//				
-//				TxDataRow.parseLocalFileTransaction(anyString);
-//				times = 0;
-    		}
-    	};
-    	
     	// Method under test
     	final Map<LocalDate, List<TxDataRow>> resultTransactionsMap = transactionsFileReader.readTransactionsFromTheFile(testFileName, false);
     	
