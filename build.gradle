@@ -14,6 +14,8 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.5.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.5.1'
     testCompile "org.jmockit:jmockit:1.49"
+    testCompile group: 'org.hamcrest', name: 'hamcrest-library', version: '2.2'
+    
     
     compile group: 'com.google.inject', name: 'guice', version: '4.2.2'
     

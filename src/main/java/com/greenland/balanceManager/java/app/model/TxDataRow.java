@@ -116,7 +116,7 @@ public class TxDataRow {
 	}
 	
 	
-	public static TxDataRow parseRemoteFileTransaction(String txString) {
+	public static TxDataRow parseRemoteFileTransaction(final String txString) {
 
 		TxDataRow txDataRow = null;
 		final String[] row = txString.split("(,)(?=(?:[^\"]|\"[^\"]*\")*$)");

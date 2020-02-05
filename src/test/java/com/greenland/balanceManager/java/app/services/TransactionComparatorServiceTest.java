@@ -3,6 +3,7 @@ package com.greenland.balanceManager.java.app.services;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.io.FileNotFoundException;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -32,7 +33,7 @@ public class TransactionComparatorServiceTest {
 	private TransactionsSourceDao transactionsSourceDao;
 	
     @Test
-    void executeTransactionComparison_tx_not_found_exception() {
+    void executeTransactionComparison_tx_not_found_exception() throws FileNotFoundException {
     	// Setup
     	final Map<LocalDate, List<TxDataRow>> remoteTransactionMap = new HashMap<>();
     	final Map<LocalDate, List<TxDataRow>> localTransactionMap = new HashMap<>();
@@ -58,7 +59,7 @@ public class TransactionComparatorServiceTest {
     }
     
     @Test
-    void executeTransactionComparison_remote_tx_found_local_not_found_exception() {
+    void executeTransactionComparison_remote_tx_found_local_not_found_exception() throws FileNotFoundException {
 		// Setup
     	final TxDataRow txDataRow = new TxDataRow();
     	final List<TxDataRow> txList = Arrays.asList(txDataRow);
@@ -91,7 +92,7 @@ public class TransactionComparatorServiceTest {
     }
     
     @Test
-    void executeTransactionComparison_remote_tx_not_found_local_found_exception() {
+    void executeTransactionComparison_remote_tx_not_found_local_found_exception() throws FileNotFoundException {
     	// Setup
     	final Map<LocalDate, List<TxDataRow>> remoteTransactionMap = new HashMap<>();
     	final Map<LocalDate, List<TxDataRow>> localTransactionMap = new HashMap<>();
@@ -121,7 +122,7 @@ public class TransactionComparatorServiceTest {
     }
     
     @Test
-    void executeTransactionComparison_tx_found_compareTransactions() throws TransactionsNotFoundException {
+    void executeTransactionComparison_tx_found_compareTransactions() throws TransactionsNotFoundException, FileNotFoundException {
     	// Setup
     	final TxDataRow txDataRow = new TxDataRow();
     	final List<TxDataRow> txList = Arrays.asList(txDataRow);

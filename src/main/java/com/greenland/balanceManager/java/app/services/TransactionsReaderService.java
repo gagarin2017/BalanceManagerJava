@@ -1,5 +1,6 @@
 package com.greenland.balanceManager.java.app.services;
 
+import java.io.FileNotFoundException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -21,8 +22,9 @@ public interface TransactionsReaderService {
 	 * @param remoteTransactionMap
 	 * @param localTransactionMap
 	 * @param transactionsSourceDao - the source where transactions are stored: files, databases, web services etc.
+	 * @throws FileNotFoundException 
 	 */
 	void populateTxMapsFromSource(Map<LocalDate, List<TxDataRow>> remoteTransactionMap,
-			Map<LocalDate, List<TxDataRow>> localTransactionMap, TransactionsSourceDao transactionsSourceDao);
+			Map<LocalDate, List<TxDataRow>> localTransactionMap, TransactionsSourceDao transactionsSourceDao) throws FileNotFoundException;
 
 }

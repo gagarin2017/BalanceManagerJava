@@ -1,5 +1,6 @@
 package com.greenland.balanceManager.java.app.services;
 
+import java.io.FileNotFoundException;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
@@ -31,7 +32,7 @@ public class TransactionComparatorServiceImpl implements TransactionComparatorSe
 	private TransactionsSourceDao transactionsSourceDao;
 
 	@Override
-	public void executeTransactionComparison() throws TransactionsNotFoundException {
+	public void executeTransactionComparison() throws TransactionsNotFoundException, FileNotFoundException {
 		
 		remoteTransactionMap = new HashMap<>();
 		localTransactionMap = new HashMap<>();

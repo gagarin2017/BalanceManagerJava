@@ -1,5 +1,7 @@
 package com.greenland.balanceManager.java.app.services;
 
+import java.io.FileNotFoundException;
+
 import com.greenland.balanceManager.java.app.exceptions.TransactionsNotFoundException;
 
 /**
@@ -11,6 +13,6 @@ import com.greenland.balanceManager.java.app.exceptions.TransactionsNotFoundExce
  */
 public interface TransactionComparatorService {
 	
-	public void executeTransactionComparison() throws TransactionsNotFoundException;
+	public void executeTransactionComparison() throws TransactionsNotFoundException, FileNotFoundException;
 	
 }
