@@ -9,6 +9,7 @@ import com.greenland.balanceManager.java.app.model.TxDataRow;
 
 public class TransactionDataRowServiceImpl implements TransactionDataRowService {
 	
+	private static final String DATE_FORMAT = "d/MM/yyyy";
 	private static final int VALID_TX_SIZE_IN_CELLS = 9;
 	private final static String FIRST_CELL_TXT_IGNORE_ROW="Masked Card Number";
 
@@ -22,28 +23,27 @@ public class TransactionDataRowServiceImpl implements TransactionDataRowService 
 	public TxDataRow parseLocalFileTransaction(final String txString) {
 		TxDataRow txDataRow = null;
 		final String[] row = txString.split("\t");
-		
-		if(isValidTransactionRow(row)) {
-			LocalDate txDate = LocalDate.MIN;
+
+		if (isValidTransactionRow(row)) {
+			
+			final LocalDate txDate;
 			try {
-				txDate = LocalDate.parse(row[1], DateTimeFormatter.ofPattern("d/MM/yyyy"));
+				txDate = LocalDate.parse(row[1], DateTimeFormatter.ofPattern(DATE_FORMAT));
 			} catch (final DateTimeParseException ex) {
-				//ex.printStackTrace();
+				return txDataRow;
 			}
-			
-			if (!txDate.isEqual(LocalDate.MIN)) {
+
 			txDataRow = new TxDataRow();
-			
 			txDataRow.setTxDate(txDate);
 			txDataRow.setAccountName(row[2]);
 			txDataRow.setCategoryName(row[6]);
 			txDataRow.setReconsiled(row[8].equalsIgnoreCase("R"));
-			
+
 			float amt = Float.MIN_VALUE;
 			try {
 				final String amount = row[9].replaceAll(",", "");
 				amt = Float.parseFloat(amount);
-				if(amt != Float.MIN_VALUE && amt > 0) {
+				if (amt != Float.MIN_VALUE && amt > 0) {
 					txDataRow.setCreditAmount(amt);
 				} else {
 					txDataRow.setDebitAmount(Math.abs(amt));
@@ -51,12 +51,11 @@ public class TransactionDataRowServiceImpl implements TransactionDataRowService 
 			} catch (final NumberFormatException ex) {
 				ex.printStackTrace();
 			}
-			
-			}
 		}
-		
+
 		return txDataRow;
 	}
+	
 	@Override
 	public TxDataRow parseRemoteFileTransaction(final String txString) {
 
@@ -66,7 +65,7 @@ public class TransactionDataRowServiceImpl implements TransactionDataRowService 
 		if (isValidTransactionRow(row)) {
 			LocalDate txDate = LocalDate.MIN;
 			try {
-				txDate = LocalDate.parse(row[1], DateTimeFormatter.ofPattern("d/MM/yyyy"));
+				txDate = LocalDate.parse(row[1], DateTimeFormatter.ofPattern(DATE_FORMAT));
 			} catch (final DateTimeParseException ex) {
 				System.out.println("Failed to parse the date @ TxRow : ["+row[1]+"]");
 				return null;
@@ -131,7 +130,7 @@ public class TransactionDataRowServiceImpl implements TransactionDataRowService 
 	 * @param txRow
 	 * @return
 	 */
-	private static boolean isValidTransactionRow(final String[] row) {
+	boolean isValidTransactionRow(final String[] row) {
 		final String firstCellText = row.length > 0 ? row[0] : "";
 		return row.length >= VALID_TX_SIZE_IN_CELLS && !firstCellText.equalsIgnoreCase(FIRST_CELL_TXT_IGNORE_ROW);
 	}

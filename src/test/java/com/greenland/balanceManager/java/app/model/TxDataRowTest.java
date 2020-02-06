@@ -255,7 +255,7 @@ public class TxDataRowTest {
 		// Method under test
 		final float result = txDataRow.getAmountNumber();
 		
-		assertThat("Amount string is \"-\"", result, is(0f));
+		assertThat("Amount string is 0", result, is(0f));
 	}
 	
 	@Test
@@ -281,6 +281,6 @@ public class TxDataRowTest {
 		// Method under test
 		final float result = txDataRow.getAmountNumber();
 		
-		assertThat("Amount string is \"-\"", result, is(0f));
+		assertThat("Amount string is 0", result, is(0f));
 	}
 }
