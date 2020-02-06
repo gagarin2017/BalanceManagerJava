@@ -93,11 +93,11 @@ public class TxDataRow {
 	}
 	
 	public String getAmountString() {
-		return creditAmount > 0 ? creditAmount+"CR" : debitAmount > 0 ? String.valueOf(debitAmount) : "-";
+		return getCreditAmount() > 0 ? getCreditAmount()+"CR" : getDebitAmount() > 0 ? String.valueOf(getDebitAmount()) : "-";
 	}
 	
 	public float getAmountNumber() {
-		return creditAmount > 0 ? creditAmount : debitAmount > 0 ? debitAmount : 0;
+		return getCreditAmount() > 0 ? getCreditAmount() : getDebitAmount() > 0 ? getDebitAmount() : 0;
 	}
 	
 	
