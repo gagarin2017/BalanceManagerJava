@@ -8,7 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import java.time.LocalDate;
 import java.util.List;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -101,7 +100,7 @@ public class TransactionDataRowServiceImplTest {
 				txDataRow.setAccountName("AIB-VISA");
 				txDataRow.setCategoryName("[Family_Budget_ACC]");
 				txDataRow.setReconsiled(true);
-				txDataRow.setTransactionAmountLocal(txStringArray);
+				txDataRow.setTransactionAmount(txStringArray);
 			}
 		};
 	}
@@ -143,7 +142,7 @@ public class TransactionDataRowServiceImplTest {
 				txDataRow.setAccountName("AIB-VISA");
 				txDataRow.setCategoryName("Bills & Utilities:Mobile Phone");
 				txDataRow.setReconsiled(true);
-				txDataRow.setTransactionAmountLocal(txStringArray);
+				txDataRow.setTransactionAmount(txStringArray);
 			}
 		};
 	}

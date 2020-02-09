@@ -1,18 +1,25 @@
 package com.greenland.balanceManager.java.app.model;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import mockit.Expectations;
-import mockit.Tested;
+import com.greenland.balanceManager.java.app.services.TransactionDataRowService;
+import com.greenland.balanceManager.java.app.services.TransactionDataRowServiceImpl;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import mockit.Expectations;
+import mockit.Injectable;
+import mockit.Tested;
 
 public class TxDataRowTest {
 	
 	@Tested
 	private TxDataRow txDataRow;
+	
+	@Injectable
+	private TransactionDataRowService transactionDataRowService;
 	
 	@Test
 	@DisplayName("getAmountString when credit is positive")
@@ -282,5 +289,301 @@ public class TxDataRowTest {
 		final float result = txDataRow.getAmountNumber();
 		
 		assertThat("Amount string is 0", result, is(0f));
+	}
+	
+	@Test
+	@DisplayName("setTransactionAmount passed remote transaction string is valid, set credit amount")
+	public void setTransactionAmount_remote_transaction_valid_date_valid_credit() {
+		// Setup
+		final String txString = 
+				"1234 **** **** 5678,03/05/2018,\"PAYMENT THANK YOU\",\"0.00 \",\" 35.17 \",\"EUR\",\"Credit\",\" 35.17 \",\"EUR\"\r\n";
+		final float expectedCreditAmount = 35.17f;
+		final String[] txStringArray = txString.split(TransactionDataRowServiceImpl.REMOTE_TX_REGEX);
+		
+		final Object[] expectedValidationResult = new Object[2];
+		expectedValidationResult[0] = true;
+		
+		new Expectations(txDataRow) {
+			{
+				transactionDataRowService.isValidTransactionRow(txStringArray);
+				result = expectedValidationResult;
+				times = 1;
+				
+				txDataRow.setCreditAmount(expectedCreditAmount);
+				times = 1;
+
+				txDataRow.setDebitAmount(anyFloat);
+				times = 0;
+			}
+		};
+		
+		// Method under test
+		txDataRow.setTransactionAmount(txStringArray);;
+		
+		// Verification
+		assertThat("Making sure that test txString length is correct", txStringArray.length, is(9));
+	}
+	
+	@Test
+	@DisplayName("setTransactionAmount passed remote transaction string is valid, set debit amount")
+	public void setTransactionAmount_remote_transaction_valid_debit() {
+		// Setup
+		final String txString = 
+				"1234 **** **** 5678,11/07/2013,\"ALDI STORES \",\"7.27 \",\"  \",\"EUR\",\"Debit\",\" 7.27 \",\"EUR\"\r\n";
+		final float expectedDebitAmount = 7.27f;
+		final String[] txStringArray = txString.split(TransactionDataRowServiceImpl.REMOTE_TX_REGEX);
+		
+		final Object[] expectedValidationResult = new Object[2];
+		expectedValidationResult[0] = true;
+		
+		new Expectations(txDataRow) {
+			{
+				transactionDataRowService.isValidTransactionRow(txStringArray);
+				result = expectedValidationResult;
+				times = 1;
+				
+				txDataRow.setCreditAmount(anyFloat);
+				times = 0;
+				
+				txDataRow.setDebitAmount(expectedDebitAmount);
+				times = 1;
+			}
+		};
+		
+		// Method under test
+		txDataRow.setTransactionAmount(txStringArray);;
+		
+		// Verification
+		assertThat("Making sure that test txString length is correct", txStringArray.length, is(9));
+	}
+	
+	@Test
+	@DisplayName("setTransactionAmount passed remote transaction string is valid, set debit amount (GBP)")
+	public void setTransactionAmount_remote_transaction_valid_debit_GBP() {
+		// Setup
+		final String txString = 
+				"1234 **** **** 5678,10/09/2015,\"AMZN \",\"41.83 \",\"  \",\"GBP\",\"Debit\",\" 35.99 \",\"GBP\"";
+		final float expectedDebitAmount = 41.83f;
+		final String[] txStringArray = txString.split(TransactionDataRowServiceImpl.REMOTE_TX_REGEX);
+		
+		final Object[] expectedValidationResult = new Object[2];
+		expectedValidationResult[0] = true;
+		
+		new Expectations(txDataRow) {
+			{
+				transactionDataRowService.isValidTransactionRow(txStringArray);
+				result = expectedValidationResult;
+				times = 1;
+				
+				txDataRow.setCreditAmount(anyFloat);
+				times = 0;
+				
+				txDataRow.setDebitAmount(expectedDebitAmount);
+				times = 1;
+			}
+		};
+		
+		// Method under test
+		txDataRow.setTransactionAmount(txStringArray);;
+		
+		// Verification
+		assertThat("Making sure that test txString length is correct", txStringArray.length, is(9));
+	}
+	
+	
+	@Test
+	@DisplayName("setTransactionAmount passed remote transaction string is valid, set credit amount (GBP)")
+	public void setTransactionAmount_remote_transaction_valid_credit_GBP() {
+		// Setup
+		final String txString = 
+				"1234 **** **** 5678,11/11/2016,\"AMZ*Oroo\",\"0.00 \",\" 29.10 \",\"GBP\",\"Credit\",\" 25.97 \",\"GBP\"";
+		final float expectedCreditAmount = 29.10f;
+		final String[] txStringArray = txString.split(TransactionDataRowServiceImpl.REMOTE_TX_REGEX);
+		
+		new Expectations(txDataRow) {
+			{
+				final Object[] expectedValidationResult = new Object[2];
+				expectedValidationResult[0] = true;
+				
+				transactionDataRowService.isValidTransactionRow(txStringArray);
+				result = expectedValidationResult;
+				times = 1;
+				
+				txDataRow.setCreditAmount(expectedCreditAmount);
+				times = 1;
+				
+				txDataRow.setDebitAmount(anyFloat);
+				times = 0;
+			}
+		};
+		
+		// Method under test
+		txDataRow.setTransactionAmount(txStringArray);;
+		
+		// Verification
+		assertThat("Making sure that test txString length is correct", txStringArray.length, is(9));
+	}
+	
+	@Test
+	@DisplayName("setTransactionAmount passed local transaction string is valid, set credit amount")
+	public void setTransactionAmount_local_transaction_valid_date_valid_credit() {
+		// Setup
+		final String txString = 
+				"	11/06/2018	AIB-VISA			Cashback award	Shopping		R	1.56	";
+		final float expectedCreditAmount = 1.56f;
+		final String[] txStringArray = txString.split("\t");
+		
+		final Object[] expectedValidationResult = new Object[2];
+		expectedValidationResult[0] = true;
+		
+		new Expectations(txDataRow) {
+			{
+				transactionDataRowService.isValidTransactionRow(txStringArray);
+				result = expectedValidationResult;
+				times = 1;
+				
+				txDataRow.setCreditAmount(expectedCreditAmount);
+				times = 1;
+				
+				txDataRow.setDebitAmount(anyFloat);
+				times = 0;
+			}
+		};
+		
+		// Method under test
+		txDataRow.setTransactionAmount(txStringArray);;
+		
+		// Verification
+		assertThat("Making sure that test txString length is correct", txStringArray.length, is(10));
+	}
+	
+	@Test
+	@DisplayName("setTransactionAmount passed local transaction string is valid, set debit amount")
+	public void setTransactionAmount_local_transaction_valid_date_valid_debit() {
+		// Setup
+		final String txString = 
+				"	08/04/2015	AIB-VISA			polo	Food & Dining:Groceries		R	-5.57	";
+		final float expectedDebitAmount = 5.57f;
+		final String[] txStringArray = txString.split("\t");
+		
+		final Object[] expectedValidationResult = new Object[2];
+		expectedValidationResult[0] = true;
+		
+		new Expectations(txDataRow) {
+			{
+				transactionDataRowService.isValidTransactionRow(txStringArray);
+				result = expectedValidationResult;
+				times = 1;
+				
+				txDataRow.setCreditAmount(anyFloat);
+				times = 0;
+				
+				txDataRow.setDebitAmount(expectedDebitAmount);
+				times = 1;
+			}
+		};
+		
+		// Method under test
+		txDataRow.setTransactionAmount(txStringArray);;
+		
+		// Verification
+		assertThat("Making sure that test txString length is correct", txStringArray.length, is(10));
+	}
+	
+	@Test
+	@DisplayName("setTransactionAmount passed remote transaction string invalid, trying to set credit amount (invalid)")
+	public void setTransactionAmount_remote_transaction_invalid_amount_invalid_coma_credit() {
+		// Setup
+		final String txString = 
+				"1234 **** **** 5678,03/05/2018,\"PAYMENT THANK YOU\",\"0.00 \",\" 3#.17 \",\"EUR\",\"Credit\",\" 3#.l7 \",\"EUR\"\r\n";
+		final float expectedCreditAmount = Float.MIN_VALUE;
+		final String[] txStringArray = txString.split(TransactionDataRowServiceImpl.REMOTE_TX_REGEX);
+		
+		final Object[] expectedValidationResult = new Object[2];
+		expectedValidationResult[0] = true;
+		
+		new Expectations(txDataRow) {
+			{
+				transactionDataRowService.isValidTransactionRow(txStringArray);
+				result = expectedValidationResult;
+				times = 1;
+				
+				txDataRow.setCreditAmount(expectedCreditAmount);
+				times = 1;
+
+				txDataRow.setDebitAmount(anyFloat);
+				times = 0;
+			}
+		};
+		
+		// Method under test
+		txDataRow.setTransactionAmount(txStringArray);;
+		
+		// Verification
+		assertThat("Making sure that test txString length is correct", txStringArray.length, is(9));
+	}
+	
+	@Test
+	@DisplayName("setTransactionAmount passed remote transaction string invalid, trying to set invalid debit amount (comma)")
+	public void setTransactionAmount_remote_transaction_amount_invalid_comma_debit() {
+		// Setup
+		final String txString = 
+				"1234 **** **** 5678,04/12/2012,\"AMAZONE\",\"67,39 \",\"  \",\"GBP\",\"Debit\",\" 58,09 \",\"GBP\"";
+		final float expectedDebitAmount = Float.MIN_VALUE;
+		final String[] txStringArray = txString.split(TransactionDataRowServiceImpl.REMOTE_TX_REGEX);
+		
+		final Object[] expectedValidationResult = new Object[2];
+		expectedValidationResult[0] = true;
+		
+		new Expectations(txDataRow) {
+			{
+				transactionDataRowService.isValidTransactionRow(txStringArray);
+				result = expectedValidationResult;
+				times = 1;
+				
+				txDataRow.setCreditAmount(anyFloat);
+				times = 0;
+
+				txDataRow.setDebitAmount(expectedDebitAmount);
+				times = 1;
+			}
+		};
+		
+		// Method under test
+		txDataRow.setTransactionAmount(txStringArray);;
+		
+		// Verification
+		assertThat("Making sure that test txString length is correct", txStringArray.length, is(9));
+	}
+	
+	@Test
+	@DisplayName("setTransactionAmount passed local transaction empty string ")
+	public void setTransactionAmount_local_transaction_empty_string() {
+		// Setup
+		final String txString = "										";
+		final String[] txStringArray = txString.split("\t");
+		
+		final Object[] expectedValidationResult = new Object[2];
+		expectedValidationResult[0] = false;
+		
+		new Expectations(txDataRow) {
+			{
+				transactionDataRowService.isValidTransactionRow(txStringArray);
+				result = expectedValidationResult;
+				times = 1;
+				
+				txDataRow.setCreditAmount(anyFloat);
+				times = 0;
+				
+				txDataRow.setDebitAmount(anyFloat);
+				times = 0;
+			}
+		};
+		
+		// Method under test
+		txDataRow.setTransactionAmount(txStringArray);;
+		
+		// Verification
+		assertThat("Making sure that test txString length is correct", txStringArray.length, is(0));
 	}
 }

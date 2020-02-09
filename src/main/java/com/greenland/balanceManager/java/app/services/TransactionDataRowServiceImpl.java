@@ -8,7 +8,7 @@ import com.greenland.balanceManager.java.app.model.TxDataRow;
 
 public class TransactionDataRowServiceImpl implements TransactionDataRowService {
 	
-	static final String REMOTE_TX_REGEX = "(,)(?=(?:[^\"]|\"[^\"]*\")*$)";
+	public static final String REMOTE_TX_REGEX = "(,)(?=(?:[^\"]|\"[^\"]*\")*$)";
 	private static final String DATE_FORMAT = "d/MM/yyyy";
 
 	/**
@@ -29,7 +29,7 @@ public class TransactionDataRowServiceImpl implements TransactionDataRowService 
 			txDataRow.setAccountName(txRowArray[2]);
 			txDataRow.setCategoryName(txRowArray[6]);
 			txDataRow.setReconsiled(txRowArray[8].equalsIgnoreCase("R"));
-			txDataRow.setTransactionAmountLocal(txRowArray);
+			txDataRow.setTransactionAmount(txRowArray);
 		}
 
 		return txDataRow;
@@ -60,7 +60,8 @@ public class TransactionDataRowServiceImpl implements TransactionDataRowService 
 	 * @param txRow
 	 * @return
 	 */
-	Object[] isValidTransactionRow(final String[] txRowArray) {
+	@Override
+	public Object[] isValidTransactionRow(final String[] txRowArray) {
 		
 		final Object[] isValidDate = new Object[2];
 		isValidDate[0] = false;

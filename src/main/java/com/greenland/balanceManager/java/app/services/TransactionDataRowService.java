@@ -8,4 +8,6 @@ public interface TransactionDataRowService {
 
 	TxDataRow parseLocalFileTransaction(String data);
 
+	Object[] isValidTransactionRow(String[] txRowArray);
+
 }

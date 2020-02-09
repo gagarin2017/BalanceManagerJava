@@ -1,7 +1,14 @@
 package com.greenland.balanceManager.java.app.model;
 
 import java.time.LocalDate;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import com.google.inject.Inject;
+import com.greenland.balanceManager.java.app.services.TransactionDataRowService;
 
 public class TxDataRow {
 
@@ -12,8 +19,23 @@ public class TxDataRow {
 	private float creditAmount;
 	private boolean isReconsiled;
 	
-	private static final String CREDIT = "CREDIT";
-	private static final String DEBIT = "DEBIT";
+	@Inject
+	private TransactionDataRowService transactionDataRowService;
+	
+	private enum AmountType {
+		
+		Local("Local"), Debit("Debit"), Credit("Credit");
+		
+		private String amountType;
+		
+		AmountType(final String type) {
+			amountType = type;
+		}
+		
+		public String getAmountType() {
+			return amountType;
+		}
+	};
 	
 	public LocalDate getTxDate() {
 		return txDate;
@@ -105,69 +127,78 @@ public class TxDataRow {
 	}
 	
 	/**
-	 * @param txRowArray
+	 * @param transactionRowArray
 	 */
 	public void setTransactionAmount(final String[] txRowArray) {
-		try {
-			final String transactionType = txRowArray[6].replaceAll("\"", "").trim();
-			if (transactionType.equalsIgnoreCase(DEBIT)) {
-				// Debit amounts located at index 3
-				setTheTransactionAmount(txRowArray, 3, true);
-			} else if (transactionType.equalsIgnoreCase(CREDIT)) {
-				// Credit amounts located at index 4
-				setTheTransactionAmount(txRowArray, 4, false);
-			}
-
-		} catch (final NumberFormatException ex) {
-			ex.printStackTrace();
-		}		
-	}
-	
-	/**
-	 * @param txRowArray
-	 */
-	public void setTransactionAmountLocal(final String[] txRowArray) {
 		
-		final float amount;
-		try {
-			final String amountString = txRowArray[9].replaceAll(",", "");
-			amount = Float.parseFloat(amountString);
-		} catch (final NumberFormatException ex) {
-			ex.printStackTrace();
+		final Object[] isValid = transactionDataRowService.isValidTransactionRow(txRowArray);
+		
+		if(isValid[0] == Boolean.FALSE) {
 			return;
 		}
 		
-		if (amount > 0) {
-			this.setCreditAmount(amount);
+		final int remoteAmountTypeColumnNo = 6;
+		final int remoteCreditAmtColumnNo = 4;
+		final int remoteDebitAmtColumnNo = 3;
+		final int localAmountColumnNo = 9;
+		
+		// TODO: need to be done during split with regex
+		final String[] transactionRowArray = removeQuotesFromTheArray(txRowArray);
+		
+		final String transactionType = transactionRowArray[remoteAmountTypeColumnNo];
+		final Map<AmountType, String> amountMap = new HashMap<>();
+		
+		if (transactionType.equalsIgnoreCase(AmountType.Credit.getAmountType())) {
+			amountMap.put(AmountType.Credit, transactionRowArray[remoteCreditAmtColumnNo]);
+		} else if (transactionType.equalsIgnoreCase(AmountType.Debit.getAmountType())) {
+			amountMap.put(AmountType.Debit, transactionRowArray[remoteDebitAmtColumnNo]);
 		} else {
-			this.setDebitAmount(Math.abs(amount));
+			amountMap.put(AmountType.Local, transactionRowArray[localAmountColumnNo]);
 		}
-	}
 
+		setCreditDebitAmounts(amountMap);
+	}
+	
+	private String[] removeQuotesFromTheArray(String[] txRowArray) {
+		final List<String> arrayNoQuotes = new ArrayList<>();
+		
+		for(int i = 0 ; i < txRowArray.length; i++) {
+			arrayNoQuotes.add(txRowArray[i].replaceAll("\"", "").trim());
+		}
+		
+		return arrayNoQuotes.toArray(new String[] {});
+	}
+	
 	/**
-	 * @param txDataRow
-	 * @param txRow
-	 * @param columnIndex
-	 * 				column index 0 based
-	 * @param isDebitAmt 
+	 * @param amountMap
 	 */
-	void setTheTransactionAmount(final String[] txRow, final int columnIndex, final boolean isDebitAmt) {
-		if(columnIndex >= 0) {
-			final String amtStr = txRow[columnIndex].replaceAll("\"", "").replaceAll(",", "").trim();
-			final float amt;
-			try {
-				amt = Float.parseFloat(amtStr);
-				if (isDebitAmt) {
-					this.setDebitAmount(amt);
-				} else {
-					this.setCreditAmount(amt);
-				}
-			} catch (NumberFormatException ex) {
-				System.out.println(String.format("Exception thrown for the row [%s] [%s] index: %d isDebitAmount: %s", this, Arrays.toString(txRow), columnIndex, isDebitAmt));
-				ex.printStackTrace();
+	private void setCreditDebitAmounts(final Map<AmountType, String> amountMap) {
+		for (final Entry<AmountType, String> entry : amountMap.entrySet()) {
+
+			final float amount = parseStringAmountToNumber(entry.getValue());
+
+			if ((entry.getKey() == AmountType.Local || entry.getKey() == AmountType.Credit) && amount > 0) {
+				this.setCreditAmount(amount);
+			} else if ((entry.getKey() == AmountType.Local || entry.getKey() == AmountType.Debit)) {
+				this.setDebitAmount(Math.abs(amount)); // return absolute value. Example, -2 becomes 2.
 			}
 		}
 	}
 	
+	/**
+	 * @param entry
+	 * @return
+	 */
+	private float parseStringAmountToNumber(final String amountString) {
+		final float amount;
+		
+		try {
+			amount = Float.parseFloat(amountString);
+		} catch (final NumberFormatException ex) {
+//			ex.printStackTrace();
+			return Float.MIN_VALUE;
+		}
+		return amount;
+	}
 
 }
