@@ -103,7 +103,7 @@ public class TransactionsFileReaderTest {
     void readTransactionsFromTheFile_testFile_Remote_six_lines_in_file() throws IOException {
     	// Setup
     	final String testFileName = TEST_DATA_DIR + TransactionsFileReader.FS + "readTransactionsFromTheFile_01.csv";
-    	final int numberOfLinesInFile = 6;
+    	final int numberOfLinesInFile = 10;
     	
     	new Expectations() {
     		{

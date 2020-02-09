@@ -1,6 +1,7 @@
 package com.greenland.balanceManager.java.app.model;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 
 public class TxDataRow {
 
@@ -10,6 +11,9 @@ public class TxDataRow {
 	private float debitAmount;
 	private float creditAmount;
 	private boolean isReconsiled;
+	
+	private static final String CREDIT = "CREDIT";
+	private static final String DEBIT = "DEBIT";
 	
 	public LocalDate getTxDate() {
 		return txDate;
@@ -100,7 +104,70 @@ public class TxDataRow {
 		return getCreditAmount() > 0 ? getCreditAmount() : getDebitAmount() > 0 ? getDebitAmount() : 0;
 	}
 	
+	/**
+	 * @param txRowArray
+	 */
+	public void setTransactionAmount(final String[] txRowArray) {
+		try {
+			final String transactionType = txRowArray[6].replaceAll("\"", "").trim();
+			if (transactionType.equalsIgnoreCase(DEBIT)) {
+				// Debit amounts located at index 3
+				setTheTransactionAmount(txRowArray, 3, true);
+			} else if (transactionType.equalsIgnoreCase(CREDIT)) {
+				// Credit amounts located at index 4
+				setTheTransactionAmount(txRowArray, 4, false);
+			}
+
+		} catch (final NumberFormatException ex) {
+			ex.printStackTrace();
+		}		
+	}
 	
+	/**
+	 * @param txRowArray
+	 */
+	public void setTransactionAmountLocal(final String[] txRowArray) {
+		
+		final float amount;
+		try {
+			final String amountString = txRowArray[9].replaceAll(",", "");
+			amount = Float.parseFloat(amountString);
+		} catch (final NumberFormatException ex) {
+			ex.printStackTrace();
+			return;
+		}
+		
+		if (amount > 0) {
+			this.setCreditAmount(amount);
+		} else {
+			this.setDebitAmount(Math.abs(amount));
+		}
+	}
+
+	/**
+	 * @param txDataRow
+	 * @param txRow
+	 * @param columnIndex
+	 * 				column index 0 based
+	 * @param isDebitAmt 
+	 */
+	void setTheTransactionAmount(final String[] txRow, final int columnIndex, final boolean isDebitAmt) {
+		if(columnIndex >= 0) {
+			final String amtStr = txRow[columnIndex].replaceAll("\"", "").replaceAll(",", "").trim();
+			final float amt;
+			try {
+				amt = Float.parseFloat(amtStr);
+				if (isDebitAmt) {
+					this.setDebitAmount(amt);
+				} else {
+					this.setCreditAmount(amt);
+				}
+			} catch (NumberFormatException ex) {
+				System.out.println(String.format("Exception thrown for the row [%s] [%s] index: %d isDebitAmount: %s", this, Arrays.toString(txRow), columnIndex, isDebitAmt));
+				ex.printStackTrace();
+			}
+		}
+	}
 	
 
 }
