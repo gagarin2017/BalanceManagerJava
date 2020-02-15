@@ -6,7 +6,7 @@ package com.greenland.balanceManager.java.app.exceptions;
  * @author Jura
  *
  */
-public class TransactionsNotFoundException extends Exception {
+public class TransactionsNotFoundException extends RuntimeException {
 
 	public TransactionsNotFoundException(final String errorMessage) {
 		super(errorMessage);

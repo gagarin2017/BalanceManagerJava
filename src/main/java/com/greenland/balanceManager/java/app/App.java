@@ -7,12 +7,11 @@ import java.io.FileNotFoundException;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.greenland.balanceManager.java.app.exceptions.TransactionsNotFoundException;
 import com.greenland.balanceManager.java.app.services.TransactionComparatorService;
 
 public class App {
 
-    public static void main(String[] args) throws TransactionsNotFoundException, FileNotFoundException {
+    public static void main(String[] args) throws FileNotFoundException {
 
         final Injector injector = Guice.createInjector(new BalanceManagerJavaAppModule());
         final TransactionComparatorService transactionComparatorService = injector.getInstance(TransactionComparatorService.class);

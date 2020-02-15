@@ -27,8 +27,8 @@ import com.greenland.balanceManager.java.app.model.TxDataRow;
 public class TransactionComparatorServiceImpl implements TransactionComparatorService {
 	
 	static final String TX_NOT_FOUND_ERROR = "Transactions were not found. Number of Remote transactions %d. Number of Local transactions %d";
-	private Map<LocalDate, List<TxDataRow>> remoteTransactionMap;
-	private Map<LocalDate,List<TxDataRow>> localTransactionMap;
+	private Map<LocalDate, List<TxDataRow>> remoteTransactionMap = new HashMap<>();
+	private Map<LocalDate,List<TxDataRow>> localTransactionMap = new HashMap<>();
 	
 	@Inject
 	private TransactionsReaderService transactionsReaderService;
@@ -37,10 +37,7 @@ public class TransactionComparatorServiceImpl implements TransactionComparatorSe
 	private TransactionsSourceDao transactionsSourceDao;
 
 	@Override
-	public void executeTransactionComparison() throws TransactionsNotFoundException, FileNotFoundException {
-		
-		remoteTransactionMap = new HashMap<>();
-		localTransactionMap = new HashMap<>();
+	public void executeTransactionComparison() throws FileNotFoundException {
 		
 		transactionsReaderService.populateTxMapsFromSource(getRemoteTransactionMap(), getLocalTransactionMap(), transactionsSourceDao);
 		

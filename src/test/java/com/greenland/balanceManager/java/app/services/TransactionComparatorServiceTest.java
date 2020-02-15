@@ -124,7 +124,7 @@ public class TransactionComparatorServiceTest {
     }
     
     @Test
-    void executeTransactionComparison_tx_found_compareTransactions() throws TransactionsNotFoundException, FileNotFoundException {
+    void executeTransactionComparison_tx_found_compareTransactions() throws FileNotFoundException {
     	// Setup
     	final TxDataRow txDataRow = new TxDataRow();
     	final List<TxDataRow> txList = Arrays.asList(txDataRow);
