@@ -39,12 +39,12 @@ public class TransactionDataRowServiceImpl implements TransactionDataRowService 
 	public TxDataRow parseRemoteFileTransaction(final String txString) {
 		TxDataRow txDataRow = null;
 		final String[] txRowArray = txString.split(REMOTE_TX_REGEX);
-		final Object[] isValidDate = isValidTransactionRow(txRowArray);
+		final Object[] validDate = isValidTransactionRow(txRowArray);
 		
-		if ((boolean) isValidDate[0]) {
+		if ((boolean) validDate[0]) {
 			txDataRow = new TxDataRow();
 			txDataRow.setAccountName(txRowArray[0]);
-			txDataRow.setTxDate((LocalDate) isValidDate[1]);
+			txDataRow.setTxDate((LocalDate) validDate[1]);
 			txDataRow.setCategoryName(txRowArray[2]);
 			txDataRow.setTransactionAmount(txRowArray);
 		}

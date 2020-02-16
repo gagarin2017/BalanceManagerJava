@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.NavigableMap;
 import java.util.TreeMap;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -34,12 +35,18 @@ public class TransactionComparatorServiceTest {
 	@Injectable
 	private TransactionsSourceDao transactionsSourceDao;
 	
+	private static final Map<LocalDate, List<TxDataRow>> remoteTransactionMap = new HashMap<>();
+	private static final Map<LocalDate, List<TxDataRow>> localTransactionMap = new HashMap<>();
+	
+	@AfterEach
+	private void clearMaps() {
+		remoteTransactionMap.clear();
+		localTransactionMap.clear();
+	}
+	
     @Test
-    void executeTransactionComparison_tx_not_found_exception() throws FileNotFoundException {
+    public void executeTransactionComparison_tx_not_found_exception() throws FileNotFoundException {
     	// Setup
-    	final Map<LocalDate, List<TxDataRow>> remoteTransactionMap = new HashMap<>();
-    	final Map<LocalDate, List<TxDataRow>> localTransactionMap = new HashMap<>();
-    	
     	new Expectations() {
     		{
     			transactionComparatorService.getRemoteTransactionMap();
@@ -61,17 +68,14 @@ public class TransactionComparatorServiceTest {
     }
     
     @Test
-    void executeTransactionComparison_remote_tx_found_local_not_found_exception() throws FileNotFoundException {
+    public void executeTransactionComparison_remote_tx_found_local_not_found_exception() throws FileNotFoundException {
 		// Setup
     	final TxDataRow txDataRow = new TxDataRow();
     	final List<TxDataRow> txList = Arrays.asList(txDataRow);
     	final LocalDate todayDate = LocalDate.now();
     	
-    	final Map<LocalDate, List<TxDataRow>> remoteTransactionMap = new HashMap<>();
     	remoteTransactionMap.put(todayDate, txList);
     	
-    	final Map<LocalDate, List<TxDataRow>> localTransactionMap = new HashMap<>();
-    	
     	new Expectations(transactionComparatorService) {
     		{
     			transactionComparatorService.getRemoteTransactionMap();
@@ -94,11 +98,8 @@ public class TransactionComparatorServiceTest {
     }
     
     @Test
-    void executeTransactionComparison_remote_tx_not_found_local_found_exception() throws FileNotFoundException {
+    public void executeTransactionComparison_remote_tx_not_found_local_found_exception() throws FileNotFoundException {
     	// Setup
-    	final Map<LocalDate, List<TxDataRow>> remoteTransactionMap = new HashMap<>();
-    	final Map<LocalDate, List<TxDataRow>> localTransactionMap = new HashMap<>();
-    	
     	new Expectations(transactionComparatorService) {
     		{
     			transactionComparatorService.getRemoteTransactionMap();
@@ -124,16 +125,13 @@ public class TransactionComparatorServiceTest {
     }
     
     @Test
-    void executeTransactionComparison_tx_found_compareTransactions() throws FileNotFoundException {
+    public void executeTransactionComparison_tx_found_compareTransactions() throws FileNotFoundException {
     	// Setup
     	final TxDataRow txDataRow = new TxDataRow();
     	final List<TxDataRow> txList = Arrays.asList(txDataRow);
     	final LocalDate todayDate = LocalDate.now();
     	
-    	final Map<LocalDate, List<TxDataRow>> remoteTransactionMap = new HashMap<>();
     	remoteTransactionMap.put(todayDate, txList);
-    	
-    	final Map<LocalDate, List<TxDataRow>> localTransactionMap = new HashMap<>();
     	localTransactionMap.put(todayDate, txList);
     	
     	new Expectations(transactionComparatorService) {
@@ -157,12 +155,9 @@ public class TransactionComparatorServiceTest {
     }
     
     @Test
-    @DisplayName("compareTransactions")
-    public void compareTransactions_() {
+    @DisplayName("compareTransactions remote and local tx lists are populated with the same single Transaction.")
+    public void compareTransactions_remote_local_have_singleSameTransaction() {
     	// Setup
-    	final Map<LocalDate, List<TxDataRow>> remoteTransactionMap = new HashMap<>();
-    	final Map<LocalDate, List<TxDataRow>> localTransactionMap = new HashMap<>();
-
     	final TxDataRow txDataRow = new TxDataRow();
     	final List<TxDataRow> txList = Arrays.asList(txDataRow);
     	final LocalDate todayDate = LocalDate.now();
@@ -182,6 +177,7 @@ public class TransactionComparatorServiceTest {
     			
     			transactionComparatorService.compareTransactionListSizes(remoteTransactionMapSorted, withInstanceOf(NavigableMap.class));
     			result = true;
+    			times = 1;
     			
     			transactionComparatorService.analyzeTransactionBalances(remoteTransactionMapSorted, withInstanceOf(NavigableMap.class));
     			times = 1;
@@ -190,8 +186,31 @@ public class TransactionComparatorServiceTest {
     	
     	// Method under test
     	transactionComparatorService.compareTransactions(remoteTransactionMap, localTransactionMap);
-    	
     }
     
-
+    @Test
+    @DisplayName("compareTransactions remote has two txs, but local is empty")
+    public void compareTransactions_remote_twoTxs_local_empty() {
+    	// Setup
+    	final TxDataRow txDataRow = new TxDataRow();
+    	final TxDataRow txDataRow1 = new TxDataRow();
+    	final List<TxDataRow> txList = Arrays.asList(txDataRow, txDataRow1);
+    	final LocalDate todayDate = LocalDate.now();
+    	
+    	remoteTransactionMap.put(todayDate, txList);
+    	
+    	new Expectations(transactionComparatorService) {
+    		{
+    			transactionComparatorService.compareTransactionListSizes(withInstanceLike(new TreeMap<LocalDate, List<TxDataRow>>()), withInstanceOf(NavigableMap.class));
+    			result = false;
+    			times = 1;
+    			
+    			transactionComparatorService.analyzeTransactionBalances(withInstanceLike(new TreeMap<LocalDate, List<TxDataRow>>()), withInstanceOf(NavigableMap.class));
+    			times = 0;
+    		}
+    	};
+    	
+    	// Method under test
+    	transactionComparatorService.compareTransactions(remoteTransactionMap, localTransactionMap);
+    }
 }
