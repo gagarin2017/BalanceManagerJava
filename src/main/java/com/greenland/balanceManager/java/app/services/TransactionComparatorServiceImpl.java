@@ -128,7 +128,7 @@ public class TransactionComparatorServiceImpl implements TransactionComparatorSe
 	 * @param localTransactionMap
 	 * @return
 	 */
-	private boolean compareTransactionListSizesPerDay(final Map<LocalDate, List<TxDataRow>> remoteTransactionMap, 
+	boolean compareTransactionListSizesPerDay(final Map<LocalDate, List<TxDataRow>> remoteTransactionMap, 
 			final Map<LocalDate, List<TxDataRow>> localTransactionMap) {
 		
 		boolean sizesPerDayMatch =  false;
