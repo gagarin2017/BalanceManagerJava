@@ -5,7 +5,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
-import com.greenland.balanceManager.java.app.model.TransactionsSourceDao;
+import com.greenland.balanceManager.java.app.dao.TransactionsSourceDao;
 import com.greenland.balanceManager.java.app.model.TxDataRow;
 
 public class TransactionsReaderServiceImpl implements TransactionsReaderService {

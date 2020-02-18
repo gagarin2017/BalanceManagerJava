@@ -78,6 +78,26 @@ public class TransactionComparatorServiceParameterizedTest {
 	    		transactionComparatorService.compareTransactions(remoteTransactionMap, localTransactionMap);
 	    		break;
 	    	}
+	    	case 4: {
+	    		// Method under test + Verifications
+	    		assertThat("Remote tx size (days) correct", remoteTransactionMap.size(), is(4));
+	    		assertThat("Local tx size (days) correct", localTransactionMap.size(), is(6));
+	    		
+	    		// expecting these to be removed
+	        	localTransactionMap.remove(LocalDate.of(2018, 1, 8));
+	        	localTransactionMap.remove(LocalDate.of(2018, 1, 4));
+	        	
+	    		new Expectations(transactionComparatorService) {
+	    			{
+	    				transactionComparatorService.compareTransactionListSizesPerDay(remoteTransactionMap, localTransactionMap);
+	    				result = true;
+	    				times = 1;
+	    			}
+	    		};
+	    		
+	    		transactionComparatorService.compareTransactions(remoteTransactionMap, localTransactionMap);
+	    		break;
+	    	}
     	}
     }
 
@@ -88,15 +108,59 @@ public class TransactionComparatorServiceParameterizedTest {
     	final Object[] scenario1 = buildMapsForScenario1();
     	final Object[] scenario2 = buildMapsForScenario2();
     	final Object[] scenario3 = buildMapsForScenario3();
+    	final Object[] scenario4 = buildMapsForScenario4();
     	
         return Stream.of(
                 arguments(scenario1[0], scenario1[1], 1, scenario1[2]),
                 arguments(scenario2[0], scenario2[1], 2, scenario2[2]),
-                arguments(scenario3[0], scenario3[1], 3, scenario3[2])
+                arguments(scenario3[0], scenario3[1], 3, scenario3[2]),
+                arguments(scenario4[0], scenario4[1], 4, scenario4[2])
         );
     }
 
 
+    /**
+     * @return
+     */
+    private static Object[] buildMapsForScenario4() {
+    	final Object[] result = new Object[3];
+    	result[2] = String.format(SCENARIO_DESC, 4, 3, 7, 1); 
+    	
+    	final Map<LocalDate, List<TxDataRow>> remoteTransactionMap = new HashMap<>();
+    	final Map<LocalDate,List<TxDataRow>> localTransactionMap = new HashMap<>();
+    	
+    	final TxDataRow remoteTx = new TxDataRow();
+    	remoteTx.setAccountName("Remote Acc name");
+    	
+    	final List<TxDataRow> remoteTxList1 = new ArrayList<>();
+    	remoteTxList1.add(remoteTx);
+    	
+    	remoteTransactionMap.put(LocalDate.of(2017, 12, 8), remoteTxList1);
+    	remoteTransactionMap.put(LocalDate.of(2018, 1, 10), remoteTxList1);
+    	remoteTransactionMap.put(LocalDate.of(2018, 1, 1), remoteTxList1);
+    	remoteTransactionMap.put(LocalDate.of(2018, 1, 15), remoteTxList1);
+    	
+    	result[0] = remoteTransactionMap;
+    	
+    	final TxDataRow localTx = new TxDataRow();
+    	localTx.setAccountName("Local Acc name");
+    	
+    	final List<TxDataRow> localTxList1 = new ArrayList<>();
+    	localTxList1.add(localTx);
+    	
+    	localTransactionMap.put(LocalDate.of(2017, 12, 8), localTxList1);
+    	localTransactionMap.put(LocalDate.of(2018, 1, 8), localTxList1);
+    	localTransactionMap.put(LocalDate.of(2018, 1, 10), localTxList1);
+    	localTransactionMap.put(LocalDate.of(2018, 1, 10), localTxList1);
+    	localTransactionMap.put(LocalDate.of(2018, 1, 15), localTxList1);
+    	localTransactionMap.put(LocalDate.of(2018, 1, 4), localTxList1);
+    	localTransactionMap.put(LocalDate.of(2018, 1, 1), localTxList1);
+    	
+    	result[1] = localTransactionMap;
+    	
+    	return result;
+    }
+    
 	/**
 	 * @return
 	 */
@@ -117,9 +181,9 @@ public class TransactionComparatorServiceParameterizedTest {
 		remoteTxList2.add(remoteTx);
 		
 		remoteTransactionMap.put(LocalDate.of(2018, 1, 8), remoteTxList1);
-		remoteTransactionMap.put(LocalDate.of(2018, 1, 10), remoteTxList1);
+		remoteTransactionMap.put(LocalDate.of(2018, 1, 10), remoteTxList2);
 		remoteTransactionMap.put(LocalDate.of(2018, 1, 11), remoteTxList1);
-		remoteTransactionMap.put(LocalDate.of(2018, 1, 15), remoteTxList1);
+		remoteTransactionMap.put(LocalDate.of(2018, 1, 15), remoteTxList2);
 		
 		result[0] = remoteTransactionMap;
 		
@@ -164,7 +228,7 @@ public class TransactionComparatorServiceParameterizedTest {
 		remoteTransactionMap.put(LocalDate.of(2018, 1, 8), remoteTxList1);
 		remoteTransactionMap.put(LocalDate.of(2018, 1, 10), remoteTxList1);
 		remoteTransactionMap.put(LocalDate.of(2018, 1, 11), remoteTxList1);
-		remoteTransactionMap.put(LocalDate.of(2018, 1, 15), remoteTxList1);
+		remoteTransactionMap.put(LocalDate.of(2018, 1, 15), remoteTxList2);
 		
 		result[0] = remoteTransactionMap;
 		

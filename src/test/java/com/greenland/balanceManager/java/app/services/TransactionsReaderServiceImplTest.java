@@ -8,7 +8,7 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import com.greenland.balanceManager.java.app.model.TransactionsSourceDao;
+import com.greenland.balanceManager.java.app.dao.TransactionsSourceDao;
 import com.greenland.balanceManager.java.app.model.TxDataRow;
 
 import mockit.Expectations;

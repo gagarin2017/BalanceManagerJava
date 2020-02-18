@@ -1,4 +1,4 @@
-package com.greenland.balanceManager.java.app.services;
+package com.greenland.balanceManager.java.app.dao;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -15,8 +15,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-import com.greenland.balanceManager.java.app.model.TransactionsFileReader;
+import com.greenland.balanceManager.java.app.dao.TransactionsFileReader;
 import com.greenland.balanceManager.java.app.model.TxDataRow;
+import com.greenland.balanceManager.java.app.services.TransactionDataRowService;
 
 import mockit.Expectations;
 import mockit.Injectable;

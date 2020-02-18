@@ -1,4 +1,4 @@
-package com.greenland.balanceManager.java.app.model;
+package com.greenland.balanceManager.java.app.dao;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -15,6 +15,7 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import com.google.inject.Inject;
+import com.greenland.balanceManager.java.app.model.TxDataRow;
 import com.greenland.balanceManager.java.app.services.TransactionDataRowService;
 
 /**

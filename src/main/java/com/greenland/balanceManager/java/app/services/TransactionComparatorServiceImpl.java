@@ -3,6 +3,7 @@ package com.greenland.balanceManager.java.app.services;
 import java.io.FileNotFoundException;
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,9 +12,9 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import com.google.inject.Inject;
+import com.greenland.balanceManager.java.app.dao.TransactionsSourceDao;
 import com.greenland.balanceManager.java.app.exceptions.TransactionListsSizeIncorrectException;
 import com.greenland.balanceManager.java.app.exceptions.TransactionsNotFoundException;
-import com.greenland.balanceManager.java.app.model.TransactionsSourceDao;
 import com.greenland.balanceManager.java.app.model.TxDataRow;
 
 
@@ -136,11 +137,15 @@ public class TransactionComparatorServiceImpl implements TransactionComparatorSe
 		return sizesPerDayMatch;
 	}
 	
+	/**
+	 * @param unsortedMap
+	 * @return
+	 */
 	TreeMap<LocalDate, List<TxDataRow>> sortMapByTxDate(final Map<LocalDate, List<TxDataRow>> unsortedMap) {
 		
-		return unsortedMap.entrySet().stream()
-				.sorted(Map.Entry.comparingByKey()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
-						(oldValue, newValue) -> oldValue, TreeMap::new));
+		return unsortedMap == null ? (new TreeMap<LocalDate, List<TxDataRow>>())
+				: unsortedMap.entrySet().stream().sorted(Map.Entry.comparingByKey()).collect(
+						Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,(oldValue, newValue) -> oldValue, TreeMap::new));
 	}
 	
 	
