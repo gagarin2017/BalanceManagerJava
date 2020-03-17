@@ -14,6 +14,9 @@ import java.util.Scanner;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.google.inject.Inject;
 import com.greenland.balanceManager.java.app.model.TxDataRow;
 import com.greenland.balanceManager.java.app.services.TransactionDataRowService;
@@ -26,6 +29,8 @@ import com.greenland.balanceManager.java.app.services.TransactionDataRowService;
  */
 public class TransactionsFileReader implements TransactionsSourceDao {
 	
+	private static Logger logger = LogManager.getLogger(TransactionsFileReader.class);
+
 	private static final String CONFIG_PROPERTIES_FILE_NAME = "config.properties";
 	public static final String FS = System.getProperty("file.separator");
 	
@@ -37,7 +42,11 @@ public class TransactionsFileReader implements TransactionsSourceDao {
 			final Map<LocalDate, List<TxDataRow>> localTransactionMap) throws FileNotFoundException {
 		
     	final String[] fileNames = getFileNamesFromPropertyFile();
+    	
+    	logger.debug("Getting remote transactions from: {}", fileNames[0]);
     	remoteTransactionMap.putAll(readTransactionsFromTheFile(fileNames[0], true));
+    	
+    	logger.debug("Getting local transactions from: {}", fileNames[1]);
     	localTransactionMap.putAll(readTransactionsFromTheFile(fileNames[1], false));
 	}
 
@@ -78,9 +87,11 @@ public class TransactionsFileReader implements TransactionsSourceDao {
 	 * @return
 	 * @throws FileNotFoundException 
 	 */
+	@Override
 	public Map<LocalDate, List<TxDataRow>> readTransactionsFromTheFile(final String fileName, boolean isRemote)
 			throws FileNotFoundException {
 
+		logger.debug("Reading file [{}]. Remote?: {}", fileName, isRemote);
 		final Map<LocalDate, List<TxDataRow>> transactionsMap = new HashMap<>();
 
 		final File transactionFile = new File(fileName);
@@ -88,10 +99,13 @@ public class TransactionsFileReader implements TransactionsSourceDao {
 
 		while (fileReader.hasNextLine()) {
 			final String data = fileReader.nextLine();
+//			logger.debug("Reading file line [{}].", data);
 			final TxDataRow txDataRow = isRemote ? transactionDataRowService.parseRemoteFileTransaction(data)
 					: transactionDataRowService.parseLocalFileTransaction(data);
-			if (txDataRow != null /* && !txDataRow.isReconsiled() */)
+			if (txDataRow != null /* && !txDataRow.isReconsiled() */) {
+//				logger.debug("Saving transaction [{}].", txDataRow);
 				putTxDataRowToMap(transactionsMap, txDataRow);
+			}
 		}
 
 		fileReader.close();

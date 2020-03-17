@@ -12,4 +12,7 @@ public interface TransactionsSourceDao {
 	void populateTxMapsFromSource(Map<LocalDate, List<TxDataRow>> remoteTransactionMap,
 			Map<LocalDate, List<TxDataRow>> localTransactionMap) throws FileNotFoundException;
 
+	Map<LocalDate, List<TxDataRow>> readTransactionsFromTheFile(String fileName, boolean isRemote)
+			throws FileNotFoundException;
+
 }

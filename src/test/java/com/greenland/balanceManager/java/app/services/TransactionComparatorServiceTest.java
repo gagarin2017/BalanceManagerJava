@@ -1,10 +1,11 @@
 package com.greenland.balanceManager.java.app.services;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.FileNotFoundException;
 import java.time.LocalDate;
@@ -17,6 +18,7 @@ import java.util.NavigableMap;
 import java.util.TreeMap;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -29,6 +31,11 @@ import mockit.Injectable;
 import mockit.Tested;
 
 
+/**
+ * @author Jura
+ *
+ */
+
 public class TransactionComparatorServiceTest {
 	
 	@Tested
@@ -38,7 +45,13 @@ public class TransactionComparatorServiceTest {
 	private TransactionsReaderService transactionsReaderService;
 	
 	@Injectable
+	private TransactionsBalanceAnalyzer transactionsBalanceAnalyzer;
+	
+	@Injectable
 	private TransactionsSourceDao transactionsSourceDao;
+	
+	@Injectable
+	private TransactionsSizeComparator transactionsSizeComparator;
 	
 	private static final Map<LocalDate, List<TxDataRow>> remoteTransactionMap = new HashMap<>();
 	private static final Map<LocalDate, List<TxDataRow>> localTransactionMap = new HashMap<>();
@@ -150,7 +163,7 @@ public class TransactionComparatorServiceTest {
     			transactionComparatorService.getLocalTransactionMap();
     			result = localTransactionMap;
     			
-    			transactionComparatorService.compareTransactions(remoteTransactionMap, localTransactionMap);
+    			transactionComparatorService.compareRemoteVsLocalTransactions(remoteTransactionMap, localTransactionMap);
     			times = 1;
     		}
     	};
@@ -180,43 +193,16 @@ public class TransactionComparatorServiceTest {
     			transactionComparatorService.sortMapByTxDate(localTransactionMap);
     			result = localTransactionMapSorted;
     			
-    			transactionComparatorService.compareTransactionListSizes(remoteTransactionMapSorted, withInstanceOf(NavigableMap.class));
-    			result = true;
+    			transactionsSizeComparator.compareTransactionListSizes(remoteTransactionMapSorted, localTransactionMapSorted);
     			times = 1;
     			
-    			transactionComparatorService.analyzeTransactionBalances(remoteTransactionMapSorted, withInstanceOf(NavigableMap.class));
+    			transactionsBalanceAnalyzer.analyzeTransactionBalances(remoteTransactionMapSorted, localTransactionMapSorted);
     			times = 1;
     		}
     	};
     	
     	// Method under test
-    	transactionComparatorService.compareTransactions(remoteTransactionMap, localTransactionMap);
-    }
-    
-    @Test
-    @DisplayName("compareTransactions remote has two txs, but local is empty")
-    public void compareTransactions_remote_twoTxs_local_empty() {
-    	// Setup
-    	final TxDataRow txDataRow = new TxDataRow();
-    	final TxDataRow txDataRow1 = new TxDataRow();
-    	final List<TxDataRow> txList = Arrays.asList(txDataRow, txDataRow1);
-    	final LocalDate todayDate = LocalDate.now();
-    	
-    	remoteTransactionMap.put(todayDate, txList);
-    	
-    	new Expectations(transactionComparatorService) {
-    		{
-    			transactionComparatorService.compareTransactionListSizes(withInstanceLike(new TreeMap<LocalDate, List<TxDataRow>>()), withInstanceOf(NavigableMap.class));
-    			result = false;
-    			times = 1;
-    			
-    			transactionComparatorService.analyzeTransactionBalances(withInstanceLike(new TreeMap<LocalDate, List<TxDataRow>>()), withInstanceOf(NavigableMap.class));
-    			times = 0;
-    		}
-    	};
-    	
-    	// Method under test
-    	transactionComparatorService.compareTransactions(remoteTransactionMap, localTransactionMap);
+    	transactionComparatorService.compareRemoteVsLocalTransactions(remoteTransactionMap, localTransactionMap);
     }
     
     @Test
@@ -283,5 +269,18 @@ public class TransactionComparatorServiceTest {
     	assertNotNull(resultMap);
     	assertThat(resultMap.size(), is(3));
     	assertThat(resultMap, is(expectedMap));
+    }
+    
+    @Test
+    @DisplayName("analyzeTransactionBalances passing remote and local transactions. Balances match")
+    public void analyzeTransactionBalances_balancesMatch_success() {
+    	// Setup
+    	
+    	
+    	// Method under test
+    	final boolean balanceMatch = 
+    			transactionsBalanceAnalyzer.analyzeTransactionBalances(remoteTransactionMap, localTransactionMap);    	
+    	// Verification
+//    	assertTrue(balanceMatch);
     }
 }

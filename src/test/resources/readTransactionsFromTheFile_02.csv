@@ -1,0 +1,10 @@
+Masked Card Number, Posted Transactions Date, Description, Debit Amount, Credit Amount, Posted Currency, Transaction Type, Local Currency Amount, Local Currency
+
+1234 **** **** 5678,21/12/2017,"LIDL 1234","20.53 ","  ","EUR","Debit"," 20.53 ","EUR"
+1234 **** **** 5678,21/12/2017,"ALDI STORES","75.41 ","  ","EUR","Debit"," 75.41 ","EUR"
+1234 **** **** 5678,22/12/2017,"PAYMENT THANK YOU","0.00 "," 15.22 ","EUR","Credit"," 15.22 ","EUR"
+1234 **** **** 5678,28/12/2017,"Malzon","50.00 ","  ","EUR","Debit"," 50.0 ","EUR"
+1234 **** **** 5678,08/01/2018,"Texaco OIL","55.13 ","  ","EUR","Debit"," 55.13 ","EUR"
+1234 **** **** 5678,08/01/2018,"RYANAIR     ABCDE","52.01 ","  ","EUR","Debit"," 52.01 ","EUR"
+1234 **** **** 5678,08/01/2018,"SUPER VALU","16.80 ","  ","EUR","Debit"," 16.8 ","EUR"
+1234 **** **** 5678,08/01/2018,"PAYPAL *ABCDEF","51.32 ","  ","GBP","Debit"," 44.0 ","GBP"

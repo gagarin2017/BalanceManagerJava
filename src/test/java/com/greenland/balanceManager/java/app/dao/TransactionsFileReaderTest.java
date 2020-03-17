@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -28,8 +29,8 @@ import mockit.Tested;
 
 public class TransactionsFileReaderTest {
 	
-	private static final String LOCAL_FILE_ABS_PATH = "\\C:\\Users\\jura_\\Documents\\ExcelFilesToCompare\\111.txt";
-	private static final String REMOTE_FILE_ABS_PATH = "\\C:\\Users\\jura_\\Documents\\ExcelFilesToCompare\\222.csv";
+	private static final String LOCAL_FILE_ABS_PATH = "\\C:\\ExcelFilesToCompare\\111.txt";
+	private static final String REMOTE_FILE_ABS_PATH = "\\C:\\ExcelFilesToCompare\\222.csv";
 	
 	private static final String TEST_DATA_DIR = "build\\resources\\test";
 	
@@ -124,6 +125,7 @@ public class TransactionsFileReaderTest {
     	assertThat("All lines are valid \"transactions\" - one Entry in map ", resultTransactionsMap.size(), is(1));
     	assertThat("Check if all \"transactions\" are read from the file", resultTransactionsMap.entrySet().iterator().next().getValue().size(), is(numberOfLinesInFile));
     }
+
     
     @Test
     @Tag("integrationTest")

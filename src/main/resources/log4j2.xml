@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+  
+  <Appenders>
+    <Console name="Console" target="SYSTEM_OUT">
+      <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+    </Console>
+    
+    <File name="MyFile" fileName="logs/app.log" append="false">
+      <PatternLayout>
+        <Pattern>%d %p %c{1.} [%t] %m%n</Pattern>
+      </PatternLayout>
+    </File>
+    <Async name="Async">
+      <AppenderRef ref="MyFile"/>
+    </Async>
+    
+  </Appenders>
+  
+  <loggers>     
+    <root level="debug">
+      <appender-ref ref="Console" level="info"/>
+      <appender-ref ref="Async" level="debug"/>
+    </root>    
+  </loggers>
+  
+</Configuration>

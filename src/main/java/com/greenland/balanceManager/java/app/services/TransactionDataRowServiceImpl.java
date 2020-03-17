@@ -4,12 +4,16 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.google.inject.Singleton;
+import com.greenland.balanceManager.java.app.CommonUtils;
 import com.greenland.balanceManager.java.app.model.TxDataRow;
 
+@Singleton
 public class TransactionDataRowServiceImpl implements TransactionDataRowService {
-	
-	public static final String REMOTE_TX_REGEX = "(,)(?=(?:[^\"]|\"[^\"]*\")*$)";
-	private static final String DATE_FORMAT = "d/MM/yyyy";
+	private static Logger logger = LogManager.getLogger(TransactionDataRowServiceImpl.class);
 
 	/**
 	 * Parsing local transactions into the {@link TxDataRow}
@@ -19,9 +23,13 @@ public class TransactionDataRowServiceImpl implements TransactionDataRowService 
 	 */
 	@Override
 	public TxDataRow parseLocalFileTransaction(final String txString) {
+		logger.debug("Trying to parse the line [{}] into transaction.", txString);
+		
 		TxDataRow txDataRow = null;
 		final String[] txRowArray = txString.split("\t");
 		final Object[] isValidDate = isValidTransactionRow(txRowArray);
+
+		logger.debug("Is it valid? {}. Transaction date: {}.", isValidDate[0], isValidDate[1]);
 
 		if ((boolean) isValidDate[0]) {
 			txDataRow = new TxDataRow();
@@ -37,14 +45,18 @@ public class TransactionDataRowServiceImpl implements TransactionDataRowService 
 	
 	@Override
 	public TxDataRow parseRemoteFileTransaction(final String txString) {
+		logger.debug("Trying to parse the line [{}] into transaction.", txString);
+
 		TxDataRow txDataRow = null;
-		final String[] txRowArray = txString.split(REMOTE_TX_REGEX);
-		final Object[] validDate = isValidTransactionRow(txRowArray);
+		final String[] txRowArray = txString.split(CommonUtils.REMOTE_TX_REGEX);
+		final Object[] isValidTransactionAndDate = isValidTransactionRow(txRowArray);
 		
-		if ((boolean) validDate[0]) {
+		logger.debug("Is it valid? {}. Transaction date: {}.", isValidTransactionAndDate[0], isValidTransactionAndDate[1]);
+		
+		if ((boolean) isValidTransactionAndDate[0]) {
 			txDataRow = new TxDataRow();
 			txDataRow.setAccountName(txRowArray[0]);
-			txDataRow.setTxDate((LocalDate) validDate[1]);
+			txDataRow.setTxDate((LocalDate) isValidTransactionAndDate[1]);
 			txDataRow.setCategoryName(txRowArray[2]);
 			txDataRow.setTransactionAmount(txRowArray);
 		}
@@ -68,7 +80,7 @@ public class TransactionDataRowServiceImpl implements TransactionDataRowService 
 		
 		if (txRowArray.length > 1) {
 			try {
-				LocalDate txDate = LocalDate.parse(txRowArray[1], DateTimeFormatter.ofPattern(DATE_FORMAT));
+				LocalDate txDate = LocalDate.parse(txRowArray[1], CommonUtils.DATE_TIME_FORMATTER);
 				txDate = (txDate.isAfter(LocalDate.MIN) && txDate.isBefore(LocalDate.MAX)) 
 						? txDate 
 						: null;
