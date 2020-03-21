@@ -13,6 +13,8 @@ import com.greenland.balanceManager.java.app.services.TransactionsReaderService;
 import com.greenland.balanceManager.java.app.services.TransactionsReaderServiceImpl;
 import com.greenland.balanceManager.java.app.services.TransactionsSizeComparator;
 import com.greenland.balanceManager.java.app.services.TransactionsSizeComparatorImpl;
+import com.greenland.balanceManager.java.app.services.TransactionsValidationService;
+import com.greenland.balanceManager.java.app.services.TransactionsValidationServiceImpl;
 
 public class BalanceManagerJavaAppModule extends AbstractModule	 {
 	
@@ -25,6 +27,7 @@ public class BalanceManagerJavaAppModule extends AbstractModule	 {
 	    bind(TransactionDataRowService.class).to(TransactionDataRowServiceImpl.class);
 	    bind(TransactionsBalanceAnalyzer.class).to(TransactionsBalanceAnalyzerImpl.class);
 	    bind(TransactionsSizeComparator.class).to(TransactionsSizeComparatorImpl.class);
+	    bind(TransactionsValidationService.class).to(TransactionsValidationServiceImpl.class);
 	}
 
 }

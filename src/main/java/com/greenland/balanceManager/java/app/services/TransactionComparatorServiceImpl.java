@@ -79,7 +79,7 @@ public class TransactionComparatorServiceImpl implements TransactionComparatorSe
 	public void compareRemoteVsLocalTransactions(final Map<LocalDate, List<TxDataRow>> remoteTransactionMap,
 			final Map<LocalDate, List<TxDataRow>> localTransactionMap) {
 		
-		logger.debug("Comparing transactions maps. Remote: {} overall transaction. Local: {} overall transactions.", remoteTransactionMap.size(), localTransactionMap.size());
+		logger.info("Comparing transactions maps. Remote: {} overall transaction. Local: {} overall transactions.", remoteTransactionMap.size(), localTransactionMap.size());
 		
 		// Sort maps
 		final TreeMap<LocalDate, List<TxDataRow>> remoteTransactionMapSorted = sortMapByTxDate(remoteTransactionMap);

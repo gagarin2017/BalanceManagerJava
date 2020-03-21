@@ -7,7 +7,4 @@ public interface TransactionDataRowService {
 	TxDataRow parseRemoteFileTransaction(String data);
 
 	TxDataRow parseLocalFileTransaction(String data);
-
-	Object[] isValidTransactionRow(String[] txRowArray);
-
 }

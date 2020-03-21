@@ -21,19 +21,26 @@ import com.greenland.balanceManager.java.app.exceptions.TransactionListsSizeInco
 import com.greenland.balanceManager.java.app.model.TxDataRow;
 
 import mockit.Expectations;
+import mockit.Injectable;
 import mockit.Tested;
+import mockit.internal.expectations.transformation.ExpectationsTransformer;
 
 /**
  * @author Jura
  *
  */
-@Disabled
 public class TransactionComparatorServiceParameterizedTest {
 	
 	private static final String SCENARIO_DESC = "Remote transactions [%d days, %d transaction(s)], Local transactions [%d days, %d transaction(s)]";
 
 	@Tested
 	private TransactionComparatorServiceImpl transactionComparatorService;
+	
+	@Injectable
+	private TransactionsSizeComparator transactionsSizeComparator;
+	
+	@Injectable
+	private TransactionsBalanceAnalyzer transactionsBalanceAnalyzer;
     
     /**
      * @param remoteTransactionMap
@@ -51,16 +58,42 @@ public class TransactionComparatorServiceParameterizedTest {
 	        	// Method under test + Verifications
 	    		assertThat("Remote tx size (days) correct", remoteTransactionMap.size(), is(3));
 	    		assertThat("Local tx size (days) correct", localTransactionMap.size(), is(2));
-	    		assertThrows(TransactionListsSizeIncorrectException.class, 
-	        			() -> transactionComparatorService.compareRemoteVsLocalTransactions(remoteTransactionMap, localTransactionMap));
+	    		
+	    		new Expectations() {
+	    			{
+	    				transactionsSizeComparator.compareTransactionListSizes(remoteTransactionMap, localTransactionMap);
+	    				times = 1;
+	    				
+	    				transactionsBalanceAnalyzer.analyzeTransactionBalances(remoteTransactionMap, localTransactionMap);
+	    				times = 1;
+	    			}
+	    		};
+	    		
+	    		// Method under test
+	    		transactionComparatorService.compareRemoteVsLocalTransactions(remoteTransactionMap, localTransactionMap);
 	    		break;
 	    	}
 	    	case 2: {
 	    		// Method under test + Verifications
 	    		assertThat("Remote tx size (days) correct", remoteTransactionMap.size(), is(4));
 	    		assertThat("Local tx size (days) correct", localTransactionMap.size(), is(7));
-	    		assertThrows(TransactionListsSizeIncorrectException.class, 
-	    				() -> transactionComparatorService.compareRemoteVsLocalTransactions(remoteTransactionMap, localTransactionMap));
+	    		
+	    		// expecting these to be removed
+	    		localTransactionMap.remove(LocalDate.of(2018, 1, 4));
+	    		localTransactionMap.remove(LocalDate.of(2018, 1, 7));
+	    		
+	    		new Expectations() {
+	    			{
+	    				transactionsSizeComparator.compareTransactionListSizes(remoteTransactionMap, localTransactionMap);
+	    				times = 1;
+	    				
+	    				transactionsBalanceAnalyzer.analyzeTransactionBalances(remoteTransactionMap, localTransactionMap);
+	    				times = 1;
+	    			}
+	    		};
+	    		
+	    		// Method under test
+	    		transactionComparatorService.compareRemoteVsLocalTransactions(remoteTransactionMap, localTransactionMap);
 	    		break;
 	    	}
 	    	case 3: {
@@ -73,10 +106,12 @@ public class TransactionComparatorServiceParameterizedTest {
 	    		localTransactionMap.remove(LocalDate.of(2018, 1, 1));
 	    		localTransactionMap.remove(LocalDate.of(2018, 1, 4));
 	    		
-	    		new Expectations(transactionComparatorService) {
+	    		new Expectations() {
 	    			{
-	    				transactionComparatorService.compareTransactionListSizesPerDay(remoteTransactionMap, localTransactionMap);
-	    				result = true;
+	    				transactionsSizeComparator.compareTransactionListSizes(remoteTransactionMap, localTransactionMap);
+	    				times = 1;
+	    				
+	    				transactionsBalanceAnalyzer.analyzeTransactionBalances(remoteTransactionMap, localTransactionMap);
 	    				times = 1;
 	    			}
 	    		};
@@ -95,8 +130,10 @@ public class TransactionComparatorServiceParameterizedTest {
 	        	
 	    		new Expectations(transactionComparatorService) {
 	    			{
-	    				transactionComparatorService.compareTransactionListSizesPerDay(remoteTransactionMap, localTransactionMap);
-	    				result = true;
+	    				transactionsSizeComparator.compareTransactionListSizes(remoteTransactionMap, localTransactionMap);
+	    				times = 1;
+	    				
+	    				transactionsBalanceAnalyzer.analyzeTransactionBalances(remoteTransactionMap, localTransactionMap);
 	    				times = 1;
 	    			}
 	    		};
@@ -130,7 +167,7 @@ public class TransactionComparatorServiceParameterizedTest {
      */
     private static Object[] buildMapsForScenario4() {
     	final Object[] result = new Object[3];
-    	result[2] = String.format(SCENARIO_DESC, 4, 3, 7, 1); 
+    	result[2] = String.format(SCENARIO_DESC, 4, 4, 6, 7); 
     	
     	final Map<LocalDate, List<TxDataRow>> remoteTransactionMap = new HashMap<>();
     	final Map<LocalDate,List<TxDataRow>> localTransactionMap = new HashMap<>();
@@ -172,7 +209,7 @@ public class TransactionComparatorServiceParameterizedTest {
 	 */
 	private static Object[] buildMapsForScenario3() {
 		final Object[] result = new Object[3];
-		result[2] = String.format(SCENARIO_DESC, 4, 3, 7, 1); 
+		result[2] = String.format(SCENARIO_DESC, 4, 4, 7, 7); 
 		
     	final Map<LocalDate, List<TxDataRow>> remoteTransactionMap = new HashMap<>();
     	final Map<LocalDate,List<TxDataRow>> localTransactionMap = new HashMap<>();
@@ -217,7 +254,7 @@ public class TransactionComparatorServiceParameterizedTest {
 	 */
 	private static Object[] buildMapsForScenario2() {
 		final Object[] result = new Object[3];
-		result[2] = String.format(SCENARIO_DESC, 4, 3, 7, 1); 
+		result[2] = String.format(SCENARIO_DESC, 4, 4, 7, 7); 
 		
     	final Map<LocalDate, List<TxDataRow>> remoteTransactionMap = new HashMap<>();
     	final Map<LocalDate,List<TxDataRow>> localTransactionMap = new HashMap<>();
@@ -263,7 +300,7 @@ public class TransactionComparatorServiceParameterizedTest {
 	private static Object[] buildMapsForScenario1() {
 		final Object[] result = new Object[3];
 		
-		result[2] = String.format(SCENARIO_DESC, 3, 3, 2, 1); 
+		result[2] = String.format(SCENARIO_DESC, 3, 3, 2, 2); 
     	final Map<LocalDate, List<TxDataRow>> remoteTransactionMap = new HashMap<>();
     	final Map<LocalDate,List<TxDataRow>> localTransactionMap = new HashMap<>();
 		final TxDataRow remoteTx = new TxDataRow();
