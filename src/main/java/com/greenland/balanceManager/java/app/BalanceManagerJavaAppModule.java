@@ -3,6 +3,8 @@ package com.greenland.balanceManager.java.app;
 import com.google.inject.AbstractModule;
 import com.greenland.balanceManager.java.app.dao.TransactionsFileReader;
 import com.greenland.balanceManager.java.app.dao.TransactionsSourceDao;
+import com.greenland.balanceManager.java.app.services.AsciiTableDrawingService;
+import com.greenland.balanceManager.java.app.services.AsciiTableDrawingServiceImpl;
 import com.greenland.balanceManager.java.app.services.TransactionComparatorService;
 import com.greenland.balanceManager.java.app.services.TransactionComparatorServiceImpl;
 import com.greenland.balanceManager.java.app.services.TransactionDataRowService;
@@ -28,6 +30,7 @@ public class BalanceManagerJavaAppModule extends AbstractModule	 {
 	    bind(TransactionsBalanceAnalyzer.class).to(TransactionsBalanceAnalyzerImpl.class);
 	    bind(TransactionsSizeComparator.class).to(TransactionsSizeComparatorImpl.class);
 	    bind(TransactionsValidationService.class).to(TransactionsValidationServiceImpl.class);
+	    bind(AsciiTableDrawingService.class).to(AsciiTableDrawingServiceImpl.class);
 	}
 
 }

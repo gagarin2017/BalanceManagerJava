@@ -27,4 +27,16 @@ public interface TransactionsReaderService {
 	void populateTxMapsFromSource(Map<LocalDate, List<TxDataRow>> remoteTransactionMap,
 			Map<LocalDate, List<TxDataRow>> localTransactionMap, TransactionsSourceDao transactionsSourceDao) throws FileNotFoundException;
 
+	/**
+	 * @param remoteTransactionMap
+	 * @param remoteFileName
+	 * @param localTransactionMap
+	 * @param localFileName
+	 * @param transactionsSourceDao - the source where transactions are stored: files, databases, web services etc.
+	 * @throws FileNotFoundException
+	 */
+	void populateTxMapsFromSource(Map<LocalDate, List<TxDataRow>> remoteTransactionMap, String remoteFileName,
+			Map<LocalDate, List<TxDataRow>> localTransactionMap, String localFileName, TransactionsSourceDao transactionsSourceDao) 
+					throws FileNotFoundException;
+
 }

@@ -138,68 +138,68 @@ public class TransactionComparatorServiceTest {
     	assertEquals(expectedErrorTxt, exception.getMessage());
     }
     
-    @Test
-    public void executeTransactionComparison_tx_found_compareTransactions() throws FileNotFoundException {
-    	// Setup
-    	final TxDataRow txDataRow = new TxDataRow();
-    	final List<TxDataRow> txList = Arrays.asList(txDataRow);
-    	final LocalDate todayDate = LocalDate.now();
-    	
-    	remoteTransactionMap.put(todayDate, txList);
-    	localTransactionMap.put(todayDate, txList);
-    	
-    	new Expectations(transactionComparatorService) {
-    		{
-    			transactionsReaderService.populateTxMapsFromSource(remoteTransactionMap, localTransactionMap, withInstanceOf(TransactionsSourceDao.class));
-    			times = 1;
-    			
-    			transactionComparatorService.getRemoteTransactionMap();
-    			result = remoteTransactionMap;
-    			
-    			transactionComparatorService.getLocalTransactionMap();
-    			result = localTransactionMap;
-    			
-    			transactionComparatorService.compareRemoteVsLocalTransactions(remoteTransactionMap, localTransactionMap);
-    			times = 1;
-    		}
-    	};
-    	
-    	// Method under test
-    	transactionComparatorService.executeTransactionComparison();
-    }
+//    @Test
+//    public void executeTransactionComparison_tx_found_compareTransactions() throws FileNotFoundException {
+//    	// Setup
+//    	final TxDataRow txDataRow = new TxDataRow();
+//    	final List<TxDataRow> txList = Arrays.asList(txDataRow);
+//    	final LocalDate todayDate = LocalDate.now();
+//    	
+//    	remoteTransactionMap.put(todayDate, txList);
+//    	localTransactionMap.put(todayDate, txList);
+//    	
+//    	new Expectations(transactionComparatorService) {
+//    		{
+//    			transactionsReaderService.populateTxMapsFromSource(remoteTransactionMap, localTransactionMap, withInstanceOf(TransactionsSourceDao.class));
+//    			times = 1;
+//    			
+//    			transactionComparatorService.getRemoteTransactionMap();
+//    			result = remoteTransactionMap;
+//    			
+//    			transactionComparatorService.getLocalTransactionMap();
+//    			result = localTransactionMap;
+//    			
+//    			transactionComparatorService.compareRemoteVsLocalTransactions(remoteTransactionMap, localTransactionMap);
+//    			times = 1;
+//    		}
+//    	};
+//    	
+//    	// Method under test
+//    	transactionComparatorService.executeTransactionComparison();
+//    }
     
-    @Test
-    @DisplayName("compareTransactions remote and local tx lists are populated with the same single Transaction.")
-    public void compareTransactions_remote_local_have_singleSameTransaction() {
-    	// Setup
-    	final TxDataRow txDataRow = new TxDataRow();
-    	final List<TxDataRow> txList = Arrays.asList(txDataRow);
-    	final LocalDate todayDate = LocalDate.now();
-    	
-    	final TreeMap<LocalDate, List<TxDataRow>> remoteTransactionMapSorted = new TreeMap<>();
-    	remoteTransactionMapSorted.put(todayDate, txList);
-    	final TreeMap<LocalDate, List<TxDataRow>> localTransactionMapSorted = new TreeMap<>();
-    	localTransactionMapSorted.put(todayDate, txList);
-    	
-    	new Expectations(transactionComparatorService) {
-    		{
-    			transactionComparatorService.sortMapByTxDate(remoteTransactionMap);
-    			result = remoteTransactionMapSorted;
-    			
-    			transactionComparatorService.sortMapByTxDate(localTransactionMap);
-    			result = localTransactionMapSorted;
-    			
-    			transactionsSizeComparator.compareTransactionListSizes(remoteTransactionMapSorted, localTransactionMapSorted);
-    			times = 1;
-    			
-    			transactionsBalanceAnalyzer.analyzeTransactionBalances(remoteTransactionMapSorted, localTransactionMapSorted);
-    			times = 1;
-    		}
-    	};
-    	
-    	// Method under test
-    	transactionComparatorService.compareRemoteVsLocalTransactions(remoteTransactionMap, localTransactionMap);
-    }
+//    @Test
+//    @DisplayName("compareTransactions remote and local tx lists are populated with the same single Transaction.")
+//    public void compareTransactions_remote_local_have_singleSameTransaction() {
+//    	// Setup
+//    	final TxDataRow txDataRow = new TxDataRow();
+//    	final List<TxDataRow> txList = Arrays.asList(txDataRow);
+//    	final LocalDate todayDate = LocalDate.now();
+//    	
+//    	final TreeMap<LocalDate, List<TxDataRow>> remoteTransactionMapSorted = new TreeMap<>();
+//    	remoteTransactionMapSorted.put(todayDate, txList);
+//    	final TreeMap<LocalDate, List<TxDataRow>> localTransactionMapSorted = new TreeMap<>();
+//    	localTransactionMapSorted.put(todayDate, txList);
+//    	
+//    	new Expectations(transactionComparatorService) {
+//    		{
+//    			transactionComparatorService.sortMapByTxDate(remoteTransactionMap);
+//    			result = remoteTransactionMapSorted;
+//    			
+//    			transactionComparatorService.sortMapByTxDate(localTransactionMap);
+//    			result = localTransactionMapSorted;
+//    			
+//    			transactionsSizeComparator.compareTransactionListSizes(remoteTransactionMapSorted, localTransactionMapSorted);
+//    			times = 1;
+//    			
+//    			transactionsBalanceAnalyzer.analyzeTransactionBalances(remoteTransactionMapSorted, localTransactionMapSorted);
+//    			times = 1;
+//    		}
+//    	};
+//    	
+//    	// Method under test
+//    	transactionComparatorService.compareRemoteVsLocalTransactions(remoteTransactionMap, localTransactionMap);
+//    }
     
     @Test
     @DisplayName("sortMapByTxDate passing an empty map")
@@ -267,16 +267,16 @@ public class TransactionComparatorServiceTest {
     	assertThat(resultMap, is(expectedMap));
     }
     
-    @Test
-    @DisplayName("analyzeTransactionBalances passing remote and local transactions. Balances match")
-    public void analyzeTransactionBalances_balancesMatch_success() {
-    	// Setup
-    	
-    	
-    	// Method under test
-    	final boolean balanceMatch = 
-    			transactionsBalanceAnalyzer.analyzeTransactionBalances(remoteTransactionMap, localTransactionMap);    	
-    	// Verification
-//    	assertTrue(balanceMatch);
-    }
+//    @Test
+//    @DisplayName("analyzeTransactionBalances passing remote and local transactions. Balances match")
+//    public void analyzeTransactionBalances_balancesMatch_success() {
+//    	// Setup
+//    	
+//    	
+//    	// Method under test
+//    	final boolean balanceMatch = 
+//    			transactionsBalanceAnalyzer.analyzeTransactionBalances(remoteTransactionMap, localTransactionMap);    	
+//    	// Verification
+////    	assertTrue(balanceMatch);
+//    }
 }

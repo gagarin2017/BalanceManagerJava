@@ -12,6 +12,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.TreeMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
@@ -31,6 +33,8 @@ public class TransactionsFileReader implements TransactionsSourceDao {
 	
 	private static Logger logger = LogManager.getLogger(TransactionsFileReader.class);
 
+	private enum FileExtensions {CSV, TXT};
+	
 	private static final String CONFIG_PROPERTIES_FILE_NAME = "config.properties";
 	public static final String FS = System.getProperty("file.separator");
 	
@@ -44,10 +48,21 @@ public class TransactionsFileReader implements TransactionsSourceDao {
     	final String[] fileNames = getFileNamesFromPropertyFile();
     	
     	logger.debug("Getting remote transactions from: {}", fileNames[0]);
-    	remoteTransactionMap.putAll(readTransactionsFromTheFile(fileNames[0], true));
+    	remoteTransactionMap.putAll(readTransactionsFromTheFile(fileNames[0]));
     	
     	logger.debug("Getting local transactions from: {}", fileNames[1]);
-    	localTransactionMap.putAll(readTransactionsFromTheFile(fileNames[1], false));
+    	localTransactionMap.putAll(readTransactionsFromTheFile(fileNames[1]));
+	}
+	
+	@Override
+	public void populateTxMapsFromSource(final Map<LocalDate, List<TxDataRow>> remoteTransactionMap, final String remoteFile, 
+			final Map<LocalDate, List<TxDataRow>> localTransactionMap, final String localFile) throws FileNotFoundException {
+		
+		logger.debug("Getting remote transactions from: {}", remoteFile);
+		remoteTransactionMap.putAll(readTransactionsFromTheFile(remoteFile));
+		
+		logger.debug("Getting local transactions from: {}", localFile);
+		localTransactionMap.putAll(readTransactionsFromTheFile(localFile));
 	}
 
 	/**
@@ -81,13 +96,32 @@ public class TransactionsFileReader implements TransactionsSourceDao {
 		return new String[] {remoteFile, localFile};
 	}
 	
+
+	@Override
+	public Map<LocalDate, List<TxDataRow>> readTransactionsFromTheFile(final String fileName) throws FileNotFoundException {
+		String fileExt = "";
+		boolean isRemote = false;
+		final Pattern pattern = Pattern.compile("\\.{1}\\w{3}");
+		final Matcher matcher = pattern.matcher(fileName);
+		
+		if(matcher.find()) {
+			fileExt = matcher.group().substring(1);
+			isRemote = fileExt.equalsIgnoreCase(FileExtensions.CSV.name()) ? true : false;
+		}
+		
+		return readTransactionsFromTheFile(fileName, isRemote);
+	}
+	
 	/**
+	 * Read the transactions from the file.
+	 * 
 	 * @param fileName
 	 * @param isRemote
-	 * @return
+	 * @return  Map<LocalDate, List<TxDataRow>> - map of transactions by date
 	 * @throws FileNotFoundException 
 	 */
 	@Override
+	@Deprecated
 	public Map<LocalDate, List<TxDataRow>> readTransactionsFromTheFile(final String fileName, boolean isRemote)
 			throws FileNotFoundException {
 
@@ -147,4 +181,5 @@ public class TransactionsFileReader implements TransactionsSourceDao {
 	public String getConfigPropertiesFileName() {
 		return CONFIG_PROPERTIES_FILE_NAME;
 	}
+
 }

@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -25,6 +26,7 @@ import mockit.MockUp;
 import mockit.Mocked;
 import mockit.Tested;
 
+@Disabled
 public class TransactionsFileReaderTest {
 	
 	private static final String LOCAL_FILE_ABS_PATH = "\\C:\\ExcelFilesToCompare\\111.txt";

@@ -1,6 +1,7 @@
 package com.greenland.balanceManager.java.app.services;
 
 import java.io.FileNotFoundException;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.json.JSONObject;
 
 import com.google.inject.Inject;
 import com.greenland.balanceManager.java.app.CommonUtils;
@@ -61,7 +63,23 @@ public class TransactionComparatorServiceImpl implements TransactionComparatorSe
 			throw new TransactionsNotFoundException(errorMessage);
 		}
 		
-		compareRemoteVsLocalTransactions(getRemoteTransactionMap(), getLocalTransactionMap());
+		compareRemoteVsLocalTransactions(getRemoteTransactionMap(), getLocalTransactionMap(), CommonUtils.START_AMOUNT);
+	}
+	
+	@Override
+	public JSONObject executeTransactionComparison(final String remoteFileName, final String localFileName, final BigDecimal startingBalance) throws FileNotFoundException {
+		
+		logger.info("Using an instance of [{}] to get the transactions", transactionsSourceDao.getClass().getName());
+		
+		transactionsReaderService.populateTxMapsFromSource(getRemoteTransactionMap(), getLocalTransactionMap(), transactionsSourceDao);
+		
+		logger.info("Found {} remote days with transactions and {} local days with transactions", getRemoteTransactionMap().size(), getLocalTransactionMap().size());
+		if(getRemoteTransactionMap().isEmpty() || getLocalTransactionMap().isEmpty()) {
+			final String errorMessage = String.format(TX_NOT_FOUND_ERROR, remoteTransactionMap.size(), localTransactionMap.size());
+			throw new TransactionsNotFoundException(errorMessage);
+		}
+		
+		return compareRemoteVsLocalTransactions(getRemoteTransactionMap(), getLocalTransactionMap(), startingBalance);
 	}
 
 	public Map<LocalDate, List<TxDataRow>> getRemoteTransactionMap() {
@@ -76,8 +94,8 @@ public class TransactionComparatorServiceImpl implements TransactionComparatorSe
 	 * @param remoteTransactionMap
 	 * @param localTransactionMap
 	 */
-	public void compareRemoteVsLocalTransactions(final Map<LocalDate, List<TxDataRow>> remoteTransactionMap,
-			final Map<LocalDate, List<TxDataRow>> localTransactionMap) {
+	public JSONObject compareRemoteVsLocalTransactions(final Map<LocalDate, List<TxDataRow>> remoteTransactionMap,
+			final Map<LocalDate, List<TxDataRow>> localTransactionMap, final BigDecimal startingBalance) {
 		
 		logger.info("Comparing transactions maps. Remote: {} overall transaction. Local: {} overall transactions.", remoteTransactionMap.size(), localTransactionMap.size());
 		
@@ -104,7 +122,7 @@ public class TransactionComparatorServiceImpl implements TransactionComparatorSe
 				localTxSubmap.size());
 		
 		transactionsSizeComparator.compareTransactionListSizes(remoteTransactionMapSorted, localTxSubmap);
-		transactionsBalanceAnalyzer.analyzeTransactionBalances(remoteTransactionMapSorted, localTxSubmap);
+		return transactionsBalanceAnalyzer.analyzeTransactionBalances(remoteTransactionMapSorted, localTxSubmap, startingBalance);
 	}
 
 

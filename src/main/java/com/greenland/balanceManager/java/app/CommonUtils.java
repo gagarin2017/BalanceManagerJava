@@ -12,7 +12,7 @@ public interface CommonUtils {
 	/*
 	 * 
 	 */
-	public static final BigDecimal START_AMOUNT = new BigDecimal("202.46");
+	public static final BigDecimal START_AMOUNT = new BigDecimal("77.94");
 	
 	
 	public static final String TX_RULE = "txs_rule";
