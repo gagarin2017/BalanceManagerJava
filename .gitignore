@@ -4,3 +4,9 @@
 # Ignore Gradle build output directory
 build
 *.log
+/target/
+/.classpath
+/*.project
+/.settings
+/*.springBeans
+/.settings
