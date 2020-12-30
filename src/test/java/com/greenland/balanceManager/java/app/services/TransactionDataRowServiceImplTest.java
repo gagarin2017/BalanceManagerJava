@@ -37,7 +37,7 @@ public class TransactionDataRowServiceImplTest {
 		final Object[] expectedResult = new Object[2];
 		expectedResult[0] = false;
 		expectedResult[1] = null;
-		
+
 		new Expectations() {
 			{
 				transactionsValidationService.isValidTransactionRow(txStringArray);
@@ -45,13 +45,13 @@ public class TransactionDataRowServiceImplTest {
 				times = 1;
 			}
 		};
-		
+
 		// Method under test
 		final TxDataRow resultTxDataRow = transactionDataRowService.parseLocalFileTransaction(txString);
-		
+
 		assertNull(resultTxDataRow);
 	}
-	
+
 	@Test
 	@DisplayName("parseLocalFileTransaction passed transaction string is valid, date is valid, credit")
 	public void parseLocalFileTransaction_transaction_valid_date_valid( @Mocked TxDataRow txDataRow ) {
@@ -61,7 +61,7 @@ public class TransactionDataRowServiceImplTest {
 		final Object[] expectedResult = new Object[2];
 		expectedResult[0] = true;
 		expectedResult[1] = LocalDate.of(2018, 05, 23);
-		
+
 		new Expectations() {
 			{
 				transactionsValidationService.isValidTransactionRow(txStringArray);
@@ -69,19 +69,19 @@ public class TransactionDataRowServiceImplTest {
 				times = 1;
 			}
 		};
-		
+
 		// Method under test
 		final TxDataRow resultTxDataRow = transactionDataRowService.parseLocalFileTransaction(txString);
-		
+
 		// Verification
 		assertNotNull(resultTxDataRow);
 		assertThat("Making sure that test txString is correct", txStringArray.length, is(10));
-		
+
 		new Verifications() {
 			{
 				final List<TxDataRow> list = withCapture(new TxDataRow());
 				assertThat("Make sure one TxDataRow instance is created", list.size(), is(1));
-				
+
 				final TxDataRow txDataRow = list.get(0);
 				txDataRow.setTxDate(LocalDate.of(2018, 05, 23));
 				txDataRow.setAccountName("AIB-VISA");
@@ -91,7 +91,7 @@ public class TransactionDataRowServiceImplTest {
 			}
 		};
 	}
-	
+
 	@Test
 	@DisplayName("parseLocalFileTransaction passed transaction string is valid, date is valid, debit")
 	public void parseLocalFileTransaction_transaction_valid_date_valid_credit_negative( @Mocked TxDataRow txDataRow ) {
@@ -99,11 +99,11 @@ public class TransactionDataRowServiceImplTest {
 		final String txString = "	23/05/2018	AIB-VISA				Bills & Utilities:Mobile Phone		R	-20.27	";
 		final LocalDate txDate = LocalDate.of(2018, 05, 23);
 		final String[] txStringArray = txString.split("\t");
-		
+
 		final Object[] expectedResult = new Object[2];
 		expectedResult[0] = true;
 		expectedResult[1] = txDate;
-		
+
 		new Expectations() {
 			{
 				transactionsValidationService.isValidTransactionRow(txStringArray);
@@ -111,19 +111,19 @@ public class TransactionDataRowServiceImplTest {
 				times = 1;
 			}
 		};
-		
+
 		// Method under test
 		final TxDataRow resultTxDataRow = transactionDataRowService.parseLocalFileTransaction(txString);
-		
+
 		// Verification
 		assertNotNull(resultTxDataRow);
 		assertThat("Making sure that test txString is correct", txStringArray.length, is(10));
-		
+
 		new Verifications() {
 			{
 				final List<TxDataRow> list = withCapture(new TxDataRow());
 				assertThat("Make sure one TxDataRow instance is created", list.size(), is(1));
-				
+
 				final TxDataRow txDataRow = list.get(0);
 				txDataRow.setTxDate(txDate);
 				txDataRow.setAccountName("AIB-VISA");
@@ -133,22 +133,22 @@ public class TransactionDataRowServiceImplTest {
 			}
 		};
 	}
-	
+
 	@Test
 	@DisplayName("parseRemoteFileTransaction passed transaction string is valid, date is valid, credit")
 	public void parseRemoteFileTransaction_transaction_valid_date_valid_credit( @Mocked TxDataRow txDataRow ) {
 		// Setup
-		final String txString = 
+		final String txString =
 				"1234 **** **** 5678,03/05/2018,\"PAYMENT THANK YOU\",\"0.00 \",\" 35.17 \",\"EUR\",\"Credit\",\" 35.17 \",\"EUR\"\r\n";
 		final LocalDate txDate = LocalDate.of(2018, 05, 03);
 		final String[] txStringArray = txString.split(CommonUtils.REMOTE_TX_REGEX);
 
 		final int txStringLength = 9;
-		
+
 		final Object[] expectedResult = new Object[2];
 		expectedResult[0] = true;
 		expectedResult[1] = txDate;
-		
+
 		new Expectations() {
 			{
 				transactionsValidationService.isValidTransactionRow(txStringArray);
@@ -156,19 +156,19 @@ public class TransactionDataRowServiceImplTest {
 				times = 1;
 			}
 		};
-		
+
 		// Method under test
 		final TxDataRow resultTxDataRow = transactionDataRowService.parseRemoteFileTransaction(txString);
-		
+
 		// Verification
 		assertThat("Making sure that test txString is correct", txStringArray.length, is(txStringLength));
 		assertNotNull(resultTxDataRow);
-		
+
 		new Verifications() {
 			{
 				final List<TxDataRow> list = withCapture(new TxDataRow());
 				assertThat("Make sure one TxDataRow instance is created", list.size(), is(1));
-				
+
 				final TxDataRow txDataRow = list.get(0);
 				txDataRow.setTxDate(txDate);
 				txDataRow.setAccountName("1234 **** **** 5678");
@@ -177,21 +177,21 @@ public class TransactionDataRowServiceImplTest {
 			}
 		};
 	}
-	
+
 	@Test
 	@DisplayName("parseRemoteFileTransaction passed transaction string is not valid")
 	public void parseRemoteFileTransaction_transaction_invalid() {
 		// Setup
-		final String txString = 
+		final String txString =
 				"1234 **** **** 5678,03/05/2018,\"PAYMENT THANK YOU\",\"0.00 \",\" 35.17 \",\"EUR\",\"Credit\",\" 35.17 \",\"EUR\"\r\n";
 		final String[] txStringArray = txString.split(CommonUtils.REMOTE_TX_REGEX);
-		
+
 		final Object[] expectedResult = new Object[2];
 		expectedResult[0] = false;
 		expectedResult[1] = null;
-		
+
 		final int txStringLength = 9;
-		
+
 		new Expectations() {
 			{
 				transactionsValidationService.isValidTransactionRow(txStringArray);
@@ -199,30 +199,30 @@ public class TransactionDataRowServiceImplTest {
 				times = 1;
 			}
 		};
-		
+
 		// Method under test
 		final TxDataRow resultTxDataRow = transactionDataRowService.parseRemoteFileTransaction(txString);
-		
+
 		// Verification
 		assertThat("Making sure that test txString is correct", txStringArray.length, is(txStringLength));
 		assertNull(resultTxDataRow);
 	}
-	
+
 	@Test
 	@DisplayName("parseRemoteFileTransaction passed transaction string is valid, date is valid, debit")
 	public void parseRemoteFileTransaction_transaction_valid_date_valid_debit( @Mocked TxDataRow txDataRow ) {
 		// Setup
-		final String txString = 
+		final String txString =
 				"1234 **** **** 5678,28/12/2017,\"Malson\",\"50.00 \",\"  \",\"EUR\",\"Debit\",\" 50.0 \",\"EUR\"\r\n";
 		final LocalDate txDate = LocalDate.of(2017, 12, 28);
 		final String[] txStringArray = txString.split(CommonUtils.REMOTE_TX_REGEX);
-		
+
 		final int txStringLength = 9;
 
 		final Object[] expectedResult = new Object[2];
 		expectedResult[0] = true;
 		expectedResult[1] = txDate;
-		
+
 		new Expectations() {
 			{
 				transactionsValidationService.isValidTransactionRow(txStringArray);
@@ -230,19 +230,19 @@ public class TransactionDataRowServiceImplTest {
 				times = 1;
 			}
 		};
-		
+
 		// Method under test
 		final TxDataRow resultTxDataRow = transactionDataRowService.parseRemoteFileTransaction(txString);
-		
+
 		// Verification
 		assertThat("Making sure that test txString is correct", txStringArray.length, is(txStringLength));
 		assertNotNull(resultTxDataRow);
-		
+
 		new Verifications() {
 			{
 				final List<TxDataRow> list = withCapture(new TxDataRow());
 				assertThat("Make sure one TxDataRow instance is created", list.size(), is(1));
-				
+
 				final TxDataRow txDataRow = list.get(0);
 				txDataRow.setTxDate(txDate);
 				txDataRow.setAccountName("1234 **** **** 5678");
@@ -251,5 +251,4 @@ public class TransactionDataRowServiceImplTest {
 			}
 		};
 	}
-
 }
