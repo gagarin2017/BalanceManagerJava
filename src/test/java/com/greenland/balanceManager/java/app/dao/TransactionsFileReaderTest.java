@@ -16,6 +16,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
+import com.greenland.balanceManager.java.app.exceptions.TransactionsNotFoundAtSourceException;
 import com.greenland.balanceManager.java.app.model.TxDataRow;
 import com.greenland.balanceManager.java.app.services.TransactionDataRowService;
 
@@ -76,7 +77,7 @@ public class TransactionsFileReaderTest {
 	
     @Test
     @DisplayName("File names from the config used to fetch remote and local transactions")
-    void populateTxMapsFromSource_filePaths_usedToFetchTheTransactions() throws FileNotFoundException {
+    void populateTxMapsFromSource_filePaths_usedToFetchTheTransactions() throws TransactionsNotFoundAtSourceException, FileNotFoundException {
     	// Setup
     	final Map<LocalDate, List<TxDataRow>> remoteTransactionMap = new HashMap<>();
     	final Map<LocalDate, List<TxDataRow>> localTransactionMap = new HashMap<>();
@@ -102,7 +103,7 @@ public class TransactionsFileReaderTest {
     
     @Test
     @DisplayName("Read Test file 01 (csv) and see if all lines are read (remote)")
-    void readTransactionsFromTheFile_testFile_Remote_six_lines_in_file() throws IOException {
+    void readTransactionsFromTheFile_testFile_Remote_six_lines_in_file() throws TransactionsNotFoundAtSourceException {
     	// Setup
     	final String testFileName = TEST_DATA_DIR + TransactionsFileReader.FS + "readTransactionsFromTheFile_01.csv";
     	final int numberOfLinesInFile = 10;
@@ -153,7 +154,7 @@ public class TransactionsFileReaderTest {
     
     @Test
     @DisplayName("Read Test file 01 (txt) and see if all lines are read (local)")
-    void readTransactionsFromTheFile_testFile_Local_fourteen_lines_in_file() throws IOException {
+    void readTransactionsFromTheFile_testFile_Local_fourteen_lines_in_file() throws TransactionsNotFoundAtSourceException {
     	// Setup
     	final String testFileName = TEST_DATA_DIR + TransactionsFileReader.FS + "readTransactionsFromTheFile_01.txt";
     	final int numberOfLinesInFile = 14;

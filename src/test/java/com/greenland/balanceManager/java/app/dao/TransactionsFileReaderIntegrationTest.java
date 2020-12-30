@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.greenland.balanceManager.java.app.BalanceManagerJavaAppModule;
+import com.greenland.balanceManager.java.app.exceptions.TransactionsNotFoundAtSourceException;
 import com.greenland.balanceManager.java.app.model.TxDataRow;
 
 public class TransactionsFileReaderIntegrationTest {
@@ -32,7 +33,7 @@ public class TransactionsFileReaderIntegrationTest {
 	
     @Test
     @DisplayName("Read Test file 01 (csv) and see if all lines are read (remote).")
-    void readTransactionsFromTheFile_testFile_Remote_six_lines_in_file_duplicates() throws IOException {
+    void readTransactionsFromTheFile_testFile_Remote_six_lines_in_file_duplicates() throws TransactionsNotFoundAtSourceException {
     	// Setup
     	final String testFileName = TEST_DATA_DIR + TransactionsFileReader.FS + "readTransactionsFromTheFile_02.csv";
     	final LocalDate day1 = LocalDate.of(2017, 12, 21);

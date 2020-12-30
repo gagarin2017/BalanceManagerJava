@@ -20,6 +20,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.google.inject.Inject;
+import com.greenland.balanceManager.java.app.exceptions.TransactionsNotFoundAtSourceException;
 import com.greenland.balanceManager.java.app.model.TxDataRow;
 import com.greenland.balanceManager.java.app.services.TransactionDataRowService;
 
@@ -43,25 +44,27 @@ public class TransactionsFileReader implements TransactionsSourceDao {
 	
 	@Override
 	public void populateTxMapsFromSource(final Map<LocalDate, List<TxDataRow>> remoteTransactionMap,
-			final Map<LocalDate, List<TxDataRow>> localTransactionMap) throws FileNotFoundException {
+			final Map<LocalDate, List<TxDataRow>> localTransactionMap) throws TransactionsNotFoundAtSourceException {
 		
     	final String[] fileNames = getFileNamesFromPropertyFile();
     	
-    	logger.debug("Getting remote transactions from: {}", fileNames[0]);
-    	remoteTransactionMap.putAll(readTransactionsFromTheFile(fileNames[0]));
+    	logger.debug("Getting remote transactions from the file: {}", fileNames[0]);
+		remoteTransactionMap.putAll(readTransactionsFromTheFile(fileNames[0]));
+		
+		logger.debug("Getting local transactions from the file: {}", fileNames[1]);
+		localTransactionMap.putAll(readTransactionsFromTheFile(fileNames[1]));
     	
-    	logger.debug("Getting local transactions from: {}", fileNames[1]);
-    	localTransactionMap.putAll(readTransactionsFromTheFile(fileNames[1]));
 	}
 	
 	@Override
-	public void populateTxMapsFromSource(final Map<LocalDate, List<TxDataRow>> remoteTransactionMap, final String remoteFile, 
-			final Map<LocalDate, List<TxDataRow>> localTransactionMap, final String localFile) throws FileNotFoundException {
-		
-		logger.debug("Getting remote transactions from: {}", remoteFile);
+	public void populateTxMapsFromSource(final Map<LocalDate, List<TxDataRow>> remoteTransactionMap,
+			final String remoteFile, final Map<LocalDate, List<TxDataRow>> localTransactionMap, final String localFile)
+			throws TransactionsNotFoundAtSourceException {
+
+		logger.debug("Getting remote transactions from the file: {}", remoteFile);
 		remoteTransactionMap.putAll(readTransactionsFromTheFile(remoteFile));
-		
-		logger.debug("Getting local transactions from: {}", localFile);
+
+		logger.debug("Getting local transactions from the file: {}", localFile);
 		localTransactionMap.putAll(readTransactionsFromTheFile(localFile));
 	}
 
@@ -98,7 +101,7 @@ public class TransactionsFileReader implements TransactionsSourceDao {
 	
 
 	@Override
-	public Map<LocalDate, List<TxDataRow>> readTransactionsFromTheFile(final String fileName) throws FileNotFoundException {
+	public Map<LocalDate, List<TxDataRow>> readTransactionsFromTheFile(final String fileName) throws TransactionsNotFoundAtSourceException {
 		String fileExt = "";
 		boolean isRemote = false;
 		final Pattern pattern = Pattern.compile("\\.{1}\\w{3}");
@@ -123,26 +126,31 @@ public class TransactionsFileReader implements TransactionsSourceDao {
 	@Override
 	@Deprecated
 	public Map<LocalDate, List<TxDataRow>> readTransactionsFromTheFile(final String fileName, boolean isRemote)
-			throws FileNotFoundException {
+			throws TransactionsNotFoundAtSourceException {
 
-		logger.debug("Reading file [{}]. Remote?: {}", fileName, isRemote);
 		final Map<LocalDate, List<TxDataRow>> transactionsMap = new HashMap<>();
 
-		final File transactionFile = new File(fileName);
-		final Scanner fileReader = new Scanner(transactionFile);
-
-		while (fileReader.hasNextLine()) {
-			final String data = fileReader.nextLine();
+		try {
+			logger.debug("Reading file [{}]. Remote?: {}", fileName, isRemote);
+			
+			final File transactionFile = new File(fileName);
+			final Scanner fileReader = new Scanner(transactionFile);
+			
+			while (fileReader.hasNextLine()) {
+				final String data = fileReader.nextLine();
 //			logger.debug("Reading file line [{}].", data);
-			final TxDataRow txDataRow = isRemote ? transactionDataRowService.parseRemoteFileTransaction(data)
-					: transactionDataRowService.parseLocalFileTransaction(data);
-			if (txDataRow != null /* && !txDataRow.isReconsiled() */) {
+				final TxDataRow txDataRow = isRemote ? transactionDataRowService.parseRemoteFileTransaction(data)
+						: transactionDataRowService.parseLocalFileTransaction(data);
+				if (txDataRow != null /* && !txDataRow.isReconsiled() */) {
 //				logger.debug("Saving transaction [{}].", txDataRow);
-				putTxDataRowToMap(transactionsMap, txDataRow);
+					putTxDataRowToMap(transactionsMap, txDataRow);
+				}
 			}
+			
+			fileReader.close();			
+		} catch (final FileNotFoundException ex) {
+			throw new TransactionsNotFoundAtSourceException("necessary file(-s) was not present or error while reading the file", ex);
 		}
-
-		fileReader.close();
 
 		return sortMapByTxDate(transactionsMap);
 	}

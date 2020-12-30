@@ -3,15 +3,14 @@
  */
 package com.greenland.balanceManager.java.app;
 
-import java.io.FileNotFoundException;
-
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.greenland.balanceManager.java.app.exceptions.TransactionsNotFoundAtSourceException;
 import com.greenland.balanceManager.java.app.services.TransactionComparatorService;
 
 public class App {
 
-    public static void main(String[] args) throws FileNotFoundException {
+    public static void main(String[] args) throws TransactionsNotFoundAtSourceException {
 
         final Injector injector = Guice.createInjector(new BalanceManagerJavaAppModule());
         final TransactionComparatorService transactionComparatorService = injector.getInstance(TransactionComparatorService.class);

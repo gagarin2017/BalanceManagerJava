@@ -1,9 +1,12 @@
 package com.greenland.balanceManager.java.app.services;
 
-import java.io.FileNotFoundException;
 import java.math.BigDecimal;
+import java.util.List;
 
 import org.json.JSONObject;
+
+import com.greenland.balanceManager.java.app.exceptions.TransactionsNotFoundAtSourceException;
+import com.greenland.balanceManager.java.app.model.TxDataRow;
 
 /**
  * Service which loops through the transactions from the different resources, usually remote vs local
@@ -14,9 +17,11 @@ import org.json.JSONObject;
  */
 public interface TransactionComparatorService {
 	
-	public void executeTransactionComparison() throws FileNotFoundException;
+	public void executeTransactionComparison() throws TransactionsNotFoundAtSourceException;
 
 	JSONObject executeTransactionComparison(String remoteFileName, String localFileName, BigDecimal startingBalance)
-			throws FileNotFoundException;
+			throws TransactionsNotFoundAtSourceException;
+
+	public List<TxDataRow> getAllTransactions() throws TransactionsNotFoundAtSourceException;
 	
 }

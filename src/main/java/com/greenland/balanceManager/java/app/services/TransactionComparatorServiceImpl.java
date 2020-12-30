@@ -1,8 +1,8 @@
 package com.greenland.balanceManager.java.app.services;
 
-import java.io.FileNotFoundException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +19,7 @@ import com.google.inject.Inject;
 import com.greenland.balanceManager.java.app.CommonUtils;
 import com.greenland.balanceManager.java.app.dao.TransactionsSourceDao;
 import com.greenland.balanceManager.java.app.exceptions.MissingTransactionOnDateException;
+import com.greenland.balanceManager.java.app.exceptions.TransactionsNotFoundAtSourceException;
 import com.greenland.balanceManager.java.app.exceptions.TransactionsNotFoundException;
 import com.greenland.balanceManager.java.app.model.TxDataRow;
 
@@ -35,6 +36,7 @@ public class TransactionComparatorServiceImpl implements TransactionComparatorSe
 	private static Logger logger = LogManager.getLogger(TransactionComparatorServiceImpl.class);
 	
 	static final String TX_NOT_FOUND_ERROR = "Transactions were not found. Number of Remote transactions %d. Number of Local transactions %d";
+	
 	private Map<LocalDate, List<TxDataRow>> remoteTransactionMap = new HashMap<>();
 	private Map<LocalDate,List<TxDataRow>> localTransactionMap = new HashMap<>();
 	
@@ -50,14 +52,22 @@ public class TransactionComparatorServiceImpl implements TransactionComparatorSe
 	@Inject
 	private TransactionsSizeComparator transactionsSizeComparator;
 
-	@Override
-	public void executeTransactionComparison() throws FileNotFoundException {
+	@Inject
+	public TransactionComparatorServiceImpl(final TransactionsReaderService transactionsReaderService) {
 		
+	}
+
+	private void populateTxDataRows() throws TransactionsNotFoundAtSourceException {
 		logger.info("Using an instance of [{}] to get the transactions", transactionsSourceDao.getClass().getName());
 		
 		transactionsReaderService.populateTxMapsFromSource(getRemoteTransactionMap(), getLocalTransactionMap(), transactionsSourceDao);
 		
 		logger.info("Found {} remote days with transactions and {} local days with transactions", getRemoteTransactionMap().size(), getLocalTransactionMap().size());
+	}
+
+	@Override
+	public void executeTransactionComparison() throws TransactionsNotFoundAtSourceException {
+		populateTxDataRows();
 		if(getRemoteTransactionMap().isEmpty() || getLocalTransactionMap().isEmpty()) {
 			final String errorMessage = String.format(TX_NOT_FOUND_ERROR, remoteTransactionMap.size(), localTransactionMap.size());
 			throw new TransactionsNotFoundException(errorMessage);
@@ -67,7 +77,7 @@ public class TransactionComparatorServiceImpl implements TransactionComparatorSe
 	}
 	
 	@Override
-	public JSONObject executeTransactionComparison(final String remoteFileName, final String localFileName, final BigDecimal startingBalance) throws FileNotFoundException {
+	public JSONObject executeTransactionComparison(final String remoteFileName, final String localFileName, final BigDecimal startingBalance) throws TransactionsNotFoundAtSourceException {
 		
 		logger.info("Using an instance of [{}] to get the transactions", transactionsSourceDao.getClass().getName());
 		
@@ -235,6 +245,55 @@ public class TransactionComparatorServiceImpl implements TransactionComparatorSe
 				: unsortedMap.entrySet().stream().sorted(Map.Entry.comparingByKey()).collect(
 						Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,(oldValue, newValue) -> oldValue, TreeMap::new));
 	}
+
+	@Override
+	public List<TxDataRow> getAllTransactions() throws TransactionsNotFoundAtSourceException {
+		populateTxDataRows();
+
+		final List<TxDataRow> allTransactions = new ArrayList<>();
+		populateTxDataRows(allTransactions, getRemoteTransactionMap(), true);
+		populateTxDataRows(allTransactions, getLocalTransactionMap(), false);
+
+//		if (!getRemoteTransactionMap().isEmpty()) {
+//			for (final Entry<LocalDate, List<TxDataRow>> mapEntry : getRemoteTransactionMap().entrySet()) {
+//				for (final TxDataRow txDataRow : mapEntry.getValue()) {
+//					txDataRow.setRemote(true);
+//				}
+//				allTransactions.addAll(mapEntry.getValue());
+//			}
+//		}
+//
+//		if (!getLocalTransactionMap().isEmpty()) {
+//			for (final Entry<LocalDate, List<TxDataRow>> mapEntry : getLocalTransactionMap().entrySet()) {
+//				for (final TxDataRow txDataRow : mapEntry.getValue()) {
+//					txDataRow.setRemote(false);
+//				}
+//				allTransactions.addAll(mapEntry.getValue());
+//			}
+//		}
+
+		return allTransactions;
+	}
 	
+	/**
+	 * Populate all transcation collection and update the isremote flag
+	 *
+	 * @param allTxDataRows
+	 * @param txDataRows
+	 * 			can be Remote or Local Map where key is the tx date and value is the list of tx for this date
+	 * @param isRemote
+	 */
+	private void populateTxDataRows(final List<TxDataRow> allTxDataRows,
+			final Map<LocalDate, List<TxDataRow>> txDataRows, boolean isRemote) {
+
+		if (!txDataRows.isEmpty()) {
+			for (final Entry<LocalDate, List<TxDataRow>> mapEntry : txDataRows.entrySet()) {
+				for (final TxDataRow txDataRow : mapEntry.getValue()) {
+					txDataRow.setRemote(isRemote);
+				}
+				allTxDataRows.addAll(mapEntry.getValue());
+			}
+		}
+	}
 	
 }

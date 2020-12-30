@@ -1,7 +1,6 @@
 package com.greenland.balanceManager.java.app.model;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,6 +24,7 @@ public class TxDataRow {
 	private BigDecimal debitAmount;
 	private BigDecimal creditAmount;
 	private boolean isReconsiled;
+	private boolean isRemote;
 	
 	private static Logger logger = LogManager.getLogger(TxDataRow.class);
 	
@@ -196,6 +196,14 @@ public class TxDataRow {
 
 	public void setReconsiled(boolean isReconsiled) {
 		this.isReconsiled = isReconsiled;
+	}
+
+	public boolean isRemote() {
+		return isRemote;
+	}
+
+	public void setRemote(boolean isRemote) {
+		this.isRemote = isRemote;
 	}
 
 	

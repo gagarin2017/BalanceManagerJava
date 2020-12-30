@@ -4,6 +4,10 @@ plugins {
     id 'eclipse'
 }
 
+version = '1.0'
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
 repositories {
     jcenter()
 }
@@ -39,4 +43,16 @@ test {
 
 test {
     jvmArgs "-javaagent:${classpath.find { it.name.contains("jmockit") }.absolutePath}"
+}
+
+//create a single Jar with all dependencies
+task fatJar(type: Jar) {
+	manifest {
+        attributes 'Implementation-Title': 'Gradle Jar File Example',
+		'Implementation-Version': version,
+		'Main-Class': 'com.greenland.balanceManager.java.app.external.BalanceManagerExternalImpl'
+    }
+    baseName = project.name + '-all'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
 }
