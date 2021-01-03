@@ -1,19 +1,17 @@
 package com.greenland.balanceManager.java.app.model;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-
-import java.math.BigDecimal;
-
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-
 import com.greenland.balanceManager.java.app.CommonUtils;
 import com.greenland.balanceManager.java.app.services.TransactionDataRowService;
-
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+import java.math.BigDecimal;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 /**
  * @author Jura

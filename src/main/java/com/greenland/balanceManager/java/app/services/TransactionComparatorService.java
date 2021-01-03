@@ -21,6 +21,9 @@ public interface TransactionComparatorService {
 
 	JSONObject executeTransactionComparison(String remoteFileName, String localFileName, BigDecimal startingBalance)
 			throws TransactionsNotFoundAtSourceException;
+	
+	JSONObject executeTransactionComparison(JSONObject remoteTransactions, JSONObject localTransactions, BigDecimal startingBalance)
+			throws TransactionsNotFoundAtSourceException;
 
 	public List<TxDataRow> getAllTransactions() throws TransactionsNotFoundAtSourceException;
 	

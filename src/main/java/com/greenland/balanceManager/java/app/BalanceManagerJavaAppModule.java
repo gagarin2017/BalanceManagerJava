@@ -1,7 +1,9 @@
 package com.greenland.balanceManager.java.app;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.name.Names;
 import com.greenland.balanceManager.java.app.dao.TransactionsFileReader;
+import com.greenland.balanceManager.java.app.dao.TransactionsJsonReader;
 import com.greenland.balanceManager.java.app.dao.TransactionsSourceDao;
 import com.greenland.balanceManager.java.app.services.AsciiTableDrawingService;
 import com.greenland.balanceManager.java.app.services.AsciiTableDrawingServiceImpl;
@@ -25,7 +27,11 @@ public class BalanceManagerJavaAppModule extends AbstractModule	 {
 		
 	    bind(TransactionComparatorService.class).to(TransactionComparatorServiceImpl.class);
 	    bind(TransactionsReaderService.class).to(TransactionsReaderServiceImpl.class);
-	    bind(TransactionsSourceDao.class).to(TransactionsFileReader.class);
+	    
+	    // Reading the transactions from the files. Bind different implementation of the TransactionsSourceDao to use different transaction reader
+	    bind(TransactionsSourceDao.class).annotatedWith(Names.named("TransactionsFileReader")).to(TransactionsFileReader.class);
+	    bind(TransactionsSourceDao.class).annotatedWith(Names.named("TransactionsJsonReader")).to(TransactionsJsonReader.class);
+	    
 	    bind(TransactionDataRowService.class).to(TransactionDataRowServiceImpl.class);
 	    bind(TransactionsBalanceAnalyzer.class).to(TransactionsBalanceAnalyzerImpl.class);
 	    bind(TransactionsSizeComparator.class).to(TransactionsSizeComparatorImpl.class);

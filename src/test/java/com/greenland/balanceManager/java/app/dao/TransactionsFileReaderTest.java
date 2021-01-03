@@ -5,7 +5,6 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
@@ -69,7 +68,7 @@ public class TransactionsFileReaderTest {
     	final String[] expectedFileNameArray = new String[] {REMOTE_FILE_ABS_PATH, LOCAL_FILE_ABS_PATH};
     	
     	// Method under test
-    	final String[] resultFileNameArray = transactionsFileReader.getFileNamesFromPropertyFile();
+    	final String[] resultFileNameArray = transactionsFileReader.getFileNamesFromPropertiesFile();
     	
     	// Verifications
     	assertThat(resultFileNameArray, is(expectedFileNameArray));
@@ -86,7 +85,7 @@ public class TransactionsFileReaderTest {
     	
     	new Expectations(transactionsFileReader) {
     		{
-    			transactionsFileReader.getFileNamesFromPropertyFile();
+    			transactionsFileReader.getFileNamesFromPropertiesFile();
     			result = fileNameArray;
     			
     			transactionsFileReader.readTransactionsFromTheFile(fileNameArray[0], true);

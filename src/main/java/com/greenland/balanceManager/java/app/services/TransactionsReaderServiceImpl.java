@@ -1,6 +1,5 @@
 package com.greenland.balanceManager.java.app.services;
 
-import java.io.FileNotFoundException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -13,16 +12,9 @@ public class TransactionsReaderServiceImpl implements TransactionsReaderService 
 	
 	@Override
 	public void populateTxMapsFromSource(final Map<LocalDate, List<TxDataRow>> remoteTransactionMap,
-			final Map<LocalDate, List<TxDataRow>> localTransactionMap, final TransactionsSourceDao transactionsSourceDao) throws TransactionsNotFoundAtSourceException {
+			final Map<LocalDate, List<TxDataRow>> localTransactionMap, final TransactionsSourceDao transactionsSourceDao, Object... sources) throws TransactionsNotFoundAtSourceException {
 		
-		transactionsSourceDao.populateTxMapsFromSource(remoteTransactionMap, localTransactionMap);
-	}
-	
-	@Override
-	public void populateTxMapsFromSource(final Map<LocalDate, List<TxDataRow>> remoteTransactionMap, final String remoteFileName,
-			final Map<LocalDate, List<TxDataRow>> localTransactionMap, final String localFileName, final TransactionsSourceDao transactionsSourceDao) throws TransactionsNotFoundAtSourceException {
-		
-		transactionsSourceDao.populateTxMapsFromSource(remoteTransactionMap, remoteFileName, localTransactionMap, localFileName);
+		transactionsSourceDao.populateTxMapsFromSource(remoteTransactionMap, localTransactionMap, sources);
 	}
 
 }

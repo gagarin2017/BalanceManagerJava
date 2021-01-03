@@ -26,6 +26,8 @@ public class TxDataRow {
 	private boolean isReconsiled;
 	private boolean isRemote;
 	
+	private static final String RECONCILED_FLAG_STRING = "R";
+	
 	private static Logger logger = LogManager.getLogger(TxDataRow.class);
 	
 	private enum AmountType {
@@ -194,7 +196,7 @@ public class TxDataRow {
 		return isReconsiled;
 	}
 
-	public void setReconsiled(boolean isReconsiled) {
+	public void setReconsiled(final boolean isReconsiled) {
 		this.isReconsiled = isReconsiled;
 	}
 
@@ -204,6 +206,30 @@ public class TxDataRow {
 
 	public void setRemote(boolean isRemote) {
 		this.isRemote = isRemote;
+	}
+
+	/**
+	 * Set the transaction amount {@link #setCreditAmount(BigDecimal) if amount is positive, else method sets #setDebitAmount(BigDecimal)
+	 * 
+	 * @param amount
+	 * 			{@link BigDecimal} of the amount
+	 */
+	public void setAmount(final BigDecimal amount) {
+		if(amount.signum() < 0) {
+			setDebitAmount(amount);
+		} else {
+			setCreditAmount(amount);
+		}
+	}
+
+	/**
+	 * Sets the boolean flag based on the passed string. If passed string is equal to the {@link #RECONCILED_FLAG_STRING},
+	 * then {@link #TxDataRow()} is reconciled, else its not.
+	 * 
+	 * @param reconciledString
+	 */
+	public void setReconsiled(final String reconciledString) {
+		setReconsiled(reconciledString.equalsIgnoreCase(RECONCILED_FLAG_STRING) ? true : false);
 	}
 
 	

@@ -30,7 +30,7 @@ import com.greenland.balanceManager.java.app.services.TransactionDataRowService;
  * @author Jura
  *
  */
-public class TransactionsFileReader implements TransactionsSourceDao {
+public class TransactionsFileReader implements TransactionsSourceFileDao {
 	
 	private static Logger logger = LogManager.getLogger(TransactionsFileReader.class);
 
@@ -44,9 +44,9 @@ public class TransactionsFileReader implements TransactionsSourceDao {
 	
 	@Override
 	public void populateTxMapsFromSource(final Map<LocalDate, List<TxDataRow>> remoteTransactionMap,
-			final Map<LocalDate, List<TxDataRow>> localTransactionMap) throws TransactionsNotFoundAtSourceException {
+			final Map<LocalDate, List<TxDataRow>> localTransactionMap, Object... sources) throws TransactionsNotFoundAtSourceException {
 		
-    	final String[] fileNames = getFileNamesFromPropertyFile();
+    	final String[] fileNames = getFileNamesFromPropertiesFile();
     	
     	logger.debug("Getting remote transactions from the file: {}", fileNames[0]);
 		remoteTransactionMap.putAll(readTransactionsFromTheFile(fileNames[0]));
@@ -73,7 +73,7 @@ public class TransactionsFileReader implements TransactionsSourceDao {
 	 * 
 	 * @return array where first element is remote file name and second element - local file name
 	 */
-	public String[] getFileNamesFromPropertyFile() {
+	public String[] getFileNamesFromPropertiesFile() {
 		
 		String remoteFile = "";
 		String localFile = "";

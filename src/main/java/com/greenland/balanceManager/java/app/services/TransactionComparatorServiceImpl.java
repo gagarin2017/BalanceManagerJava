@@ -16,6 +16,7 @@ import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import com.greenland.balanceManager.java.app.CommonUtils;
 import com.greenland.balanceManager.java.app.dao.TransactionsSourceDao;
 import com.greenland.balanceManager.java.app.exceptions.MissingTransactionOnDateException;
@@ -43,8 +44,11 @@ public class TransactionComparatorServiceImpl implements TransactionComparatorSe
 	@Inject
 	private TransactionsReaderService transactionsReaderService;
 	
-	@Inject
-	private TransactionsSourceDao transactionsSourceDao;
+	@Inject @Named("TransactionsFileReader")
+	private TransactionsSourceDao transactionsSourceFileDao;
+	
+	@Inject @Named("TransactionsJsonReader")
+	private TransactionsSourceDao transactionsSourceJsonDao;
 	
 	@Inject
 	private TransactionsBalanceAnalyzer transactionsBalanceAnalyzer;
@@ -57,10 +61,15 @@ public class TransactionComparatorServiceImpl implements TransactionComparatorSe
 		
 	}
 
+	/**
+	 * Populating transaction maps using the implementation of {@link TransactionsSourceDao} which is binded in com.google.inject.AbstractModule
+	 * 
+	 * @throws TransactionsNotFoundAtSourceException
+	 */
 	private void populateTxDataRows() throws TransactionsNotFoundAtSourceException {
-		logger.info("Using an instance of [{}] to get the transactions", transactionsSourceDao.getClass().getName());
+		logger.info("Using an instance of [{}] to get the transactions", transactionsSourceFileDao.getClass().getName());
 		
-		transactionsReaderService.populateTxMapsFromSource(getRemoteTransactionMap(), getLocalTransactionMap(), transactionsSourceDao);
+		transactionsReaderService.populateTxMapsFromSource(getRemoteTransactionMap(), getLocalTransactionMap(), transactionsSourceFileDao);
 		
 		logger.info("Found {} remote days with transactions and {} local days with transactions", getRemoteTransactionMap().size(), getLocalTransactionMap().size());
 	}
@@ -79,9 +88,9 @@ public class TransactionComparatorServiceImpl implements TransactionComparatorSe
 	@Override
 	public JSONObject executeTransactionComparison(final String remoteFileName, final String localFileName, final BigDecimal startingBalance) throws TransactionsNotFoundAtSourceException {
 		
-		logger.info("Using an instance of [{}] to get the transactions", transactionsSourceDao.getClass().getName());
+		logger.info("Using an instance of [{}] to get the transactions", transactionsSourceFileDao.getClass().getName());
 		
-		transactionsReaderService.populateTxMapsFromSource(getRemoteTransactionMap(), getLocalTransactionMap(), transactionsSourceDao);
+		transactionsReaderService.populateTxMapsFromSource(getRemoteTransactionMap(), getLocalTransactionMap(), transactionsSourceFileDao);
 		
 		logger.info("Found {} remote days with transactions and {} local days with transactions", getRemoteTransactionMap().size(), getLocalTransactionMap().size());
 		if(getRemoteTransactionMap().isEmpty() || getLocalTransactionMap().isEmpty()) {
@@ -89,6 +98,24 @@ public class TransactionComparatorServiceImpl implements TransactionComparatorSe
 			throw new TransactionsNotFoundException(errorMessage);
 		}
 		
+		return compareRemoteVsLocalTransactions(getRemoteTransactionMap(), getLocalTransactionMap(), startingBalance);
+	}
+
+	@Override
+	public JSONObject executeTransactionComparison(final JSONObject remoteTransactions,	final JSONObject localTransactions,
+			final BigDecimal startingBalance) throws TransactionsNotFoundAtSourceException {
+
+		logger.info("Using an instance of [{}] to get the transactions", transactionsSourceJsonDao.getClass().getName());
+
+		transactionsReaderService.populateTxMapsFromSource(getRemoteTransactionMap(), getLocalTransactionMap(), transactionsSourceFileDao, remoteTransactions, localTransactions);
+
+		logger.info("Found {} remote days with transactions and {} local days with transactions", getRemoteTransactionMap().size(), getLocalTransactionMap().size());
+		if (getRemoteTransactionMap().isEmpty() || getLocalTransactionMap().isEmpty()) {
+			final String errorMessage = String.format(TX_NOT_FOUND_ERROR, remoteTransactionMap.size(),
+					localTransactionMap.size());
+			throw new TransactionsNotFoundException(errorMessage);
+		}
+
 		return compareRemoteVsLocalTransactions(getRemoteTransactionMap(), getLocalTransactionMap(), startingBalance);
 	}
 
