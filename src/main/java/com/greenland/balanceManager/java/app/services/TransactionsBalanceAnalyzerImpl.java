@@ -25,8 +25,14 @@ public class TransactionsBalanceAnalyzerImpl implements TransactionsBalanceAnaly
 	
 	private static Logger logger = LogManager.getLogger(TransactionsBalanceAnalyzerImpl.class);
 	
-	@Inject
 	private AsciiTableDrawingService asciiTableDrawingService;
+
+	public TransactionsBalanceAnalyzerImpl() { }
+	
+	@Inject
+	public TransactionsBalanceAnalyzerImpl(AsciiTableDrawingService asciiTableDrawingService) {
+		this.asciiTableDrawingService = asciiTableDrawingService;
+	}
 
 	@Override
 	public JSONObject analyzeTransactionBalances(final Map<LocalDate, List<TxDataRow>> remoteTransactionMap,
@@ -38,10 +44,10 @@ public class TransactionsBalanceAnalyzerImpl implements TransactionsBalanceAnaly
 		logger.info("Starting to calculate balance for local.");
 		final Map<LocalDate, Pair<List<TxDataRow>, BigDecimal>> localTransactionBalances = buildTransactionsBalancesPerDateMap(localTransactionMap);
 		
-		final boolean doRemoteVsLocalBalancesMatch = compareOverallTransactionBalances(remoteTransactionBalances, localTransactionBalances);
+//		final boolean doRemoteVsLocalBalancesMatch = compareOverallTransactionBalances(remoteTransactionBalances, localTransactionBalances);
+
 
 		asciiTableDrawingService.drawAsciiTable(remoteTransactionBalances, localTransactionBalances, startingBalance);
-
 		final JSONObject resultJSONOBject = new JSONObject();
 		
 		
@@ -49,12 +55,6 @@ public class TransactionsBalanceAnalyzerImpl implements TransactionsBalanceAnaly
         .put("JSON2", "Hello my World!")
         .put("JSON3", new JSONObject()
              .put("key1", "value1"));
-		
-//		String jsonString = new JSONObject()
-//                .put("JSON1", "Hello World!")
-//                .put("JSON2", "Hello my World!")
-//                .put("JSON3", new JSONObject()
-//                     .put("key1", "value1")).toString();
 		
 		return resultJSONOBject;
 	}
@@ -91,34 +91,34 @@ public class TransactionsBalanceAnalyzerImpl implements TransactionsBalanceAnaly
 	 * @param localTransactionBalances
 	 * @return
 	 */
-	private boolean compareOverallTransactionBalances(
-			final Map<LocalDate, Pair<List<TxDataRow>, BigDecimal>> remoteTransactionBalances,
-			final Map<LocalDate, Pair<List<TxDataRow>, BigDecimal>> localTransactionBalances) {
-		
-		final boolean doRemoteVsLocalBalancesMatch;
-		
-		BigDecimal remoteTotal = new BigDecimal("0");
-		BigDecimal localTotal = new BigDecimal("0");
-		
-		for (final Entry<LocalDate, Pair<List<TxDataRow>, BigDecimal>> remoteMapEntry : remoteTransactionBalances.entrySet()) {
-			remoteTotal = remoteTotal.add(remoteMapEntry.getValue().getRight());
-		}
-		
-		for (final Entry<LocalDate, Pair<List<TxDataRow>, BigDecimal>> localMapEntry : localTransactionBalances.entrySet()) {
-			localTotal = localTotal.add(localMapEntry.getValue().getRight());
-		}
-		
-		if (remoteLocalPositiveAndMatch(remoteTotal, localTotal)) {
-			logger.info("Overall balances match! We are all good! Remote: {} euros vs Local: {} euros.", remoteTotal, localTotal);
-			doRemoteVsLocalBalancesMatch = true;
-		} else {
-			logger.info("Overall balances 0 or  DID NOT match! Remote: {} euros vs Local: {} euros.", remoteTotal, localTotal);
-//			handleBalancesDidNotMatch();
-			doRemoteVsLocalBalancesMatch = false;
-		}
-		
-		return doRemoteVsLocalBalancesMatch;
-	}
+//	private boolean compareOverallTransactionBalances(
+//			final Map<LocalDate, Pair<List<TxDataRow>, BigDecimal>> remoteTransactionBalances,
+//			final Map<LocalDate, Pair<List<TxDataRow>, BigDecimal>> localTransactionBalances) {
+//		
+//		final boolean doRemoteVsLocalBalancesMatch;
+//		
+//		BigDecimal remoteTotal = new BigDecimal("0");
+//		BigDecimal localTotal = new BigDecimal("0");
+//		
+//		for (final Entry<LocalDate, Pair<List<TxDataRow>, BigDecimal>> remoteMapEntry : remoteTransactionBalances.entrySet()) {
+//			remoteTotal = remoteTotal.add(remoteMapEntry.getValue().getRight());
+//		}
+//		
+//		for (final Entry<LocalDate, Pair<List<TxDataRow>, BigDecimal>> localMapEntry : localTransactionBalances.entrySet()) {
+//			localTotal = localTotal.add(localMapEntry.getValue().getRight());
+//		}
+//		
+//		if (remoteLocalPositiveAndMatch(remoteTotal, localTotal)) {
+//			logger.info("Overall balances match! We are all good! Remote: {} euros vs Local: {} euros.", remoteTotal, localTotal);
+//			doRemoteVsLocalBalancesMatch = true;
+//		} else {
+//			logger.info("Overall balances 0 or  DID NOT match! Remote: {} euros vs Local: {} euros.", remoteTotal, localTotal);
+////			handleBalancesDidNotMatch();
+//			doRemoteVsLocalBalancesMatch = false;
+//		}
+//		
+//		return doRemoteVsLocalBalancesMatch;
+//	}
 	
 	/**
 	 * Calculate balance for the date by adding Credit and Debit amounts to the startAmount.
@@ -148,8 +148,9 @@ public class TransactionsBalanceAnalyzerImpl implements TransactionsBalanceAnaly
 	 * @param localTotal
 	 * @return
 	 */
-	private boolean remoteLocalPositiveAndMatch(BigDecimal remoteTotal, BigDecimal localTotal) {
-		return remoteTotal.compareTo(BigDecimal.ZERO) > 0 && localTotal.compareTo(BigDecimal.ZERO) > 0 && remoteTotal.compareTo(localTotal) == 0;
-	}
+//	private boolean remoteLocalPositiveAndMatch(BigDecimal remoteTotal, BigDecimal localTotal) {
+//		return remoteTotal.compareTo(BigDecimal.ZERO) > 0 && localTotal.compareTo(BigDecimal.ZERO) > 0 && remoteTotal.compareTo(localTotal) == 0;
+//	}
+	
 	
 }

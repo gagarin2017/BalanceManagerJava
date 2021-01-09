@@ -38,7 +38,7 @@ public class TransactionDataRowServiceImpl implements TransactionDataRowService 
 			txDataRow.setTxDate((LocalDate) isValidDate[1]);
 			txDataRow.setAccountName(txRowArray[2]);
 			txDataRow.setCategoryName(txRowArray[6]);
-			txDataRow.setReconsiled(txRowArray[8].equalsIgnoreCase("R"));
+			txDataRow.setReconsiled(txRowArray[8]);
 			txDataRow.setTransactionAmount(txRowArray);
 		}
 

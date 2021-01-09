@@ -31,7 +31,7 @@ public class TransactionsFileReaderIntegrationTest {
         transactionsFileReader = injector.getInstance(TransactionsSourceDao.class);
 	}
 	
-    @Test
+   /*  @Test
     @DisplayName("Read Test file 01 (csv) and see if all lines are read (remote).")
     void readTransactionsFromTheFile_testFile_Remote_six_lines_in_file_duplicates() throws TransactionsNotFoundAtSourceException {
     	// Setup
@@ -51,5 +51,5 @@ public class TransactionsFileReaderIntegrationTest {
     	assertThat("Check if number of transactions match day #2", resultTransactionsMap.get(day2).size(), is(1));
     	assertThat("Check if number of transactions match day #3", resultTransactionsMap.get(day3).size(), is(1));
     	assertThat("Check if number of transactions match day #4", resultTransactionsMap.get(day4).size(), is(4));
-    }
+    } */
 }

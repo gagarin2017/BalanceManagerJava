@@ -86,7 +86,7 @@ public class TransactionDataRowServiceImplTest {
 				txDataRow.setTxDate(LocalDate.of(2018, 05, 23));
 				txDataRow.setAccountName("AIB-VISA");
 				txDataRow.setCategoryName("[Family_Budget_ACC]");
-				txDataRow.setReconsiled(true);
+				txDataRow.setReconsiled(txStringArray[8]);
 				txDataRow.setTransactionAmount(txStringArray);
 			}
 		};
@@ -128,7 +128,7 @@ public class TransactionDataRowServiceImplTest {
 				txDataRow.setTxDate(txDate);
 				txDataRow.setAccountName("AIB-VISA");
 				txDataRow.setCategoryName("Bills & Utilities:Mobile Phone");
-				txDataRow.setReconsiled(true);
+				txDataRow.setReconsiled(txStringArray[8]);
 				txDataRow.setTransactionAmount(txStringArray);
 			}
 		};

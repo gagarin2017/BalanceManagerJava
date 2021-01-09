@@ -26,7 +26,7 @@ public class TxDataRow {
 	private boolean isReconsiled;
 	private boolean isRemote;
 	
-	private static final String RECONCILED_FLAG_STRING = "R";
+	public static final String RECONCILED_FLAG_STRING = "R";
 	
 	private static Logger logger = LogManager.getLogger(TxDataRow.class);
 	
@@ -229,7 +229,20 @@ public class TxDataRow {
 	 * @param reconciledString
 	 */
 	public void setReconsiled(final String reconciledString) {
-		setReconsiled(reconciledString.equalsIgnoreCase(RECONCILED_FLAG_STRING) ? true : false);
+		setReconsiled(reconciledString!= null && reconciledString.equalsIgnoreCase(RECONCILED_FLAG_STRING) ? true : false);
+	}
+
+	public TxDataRow() { }
+	
+	
+	public TxDataRow(LocalDate txDate, String accountName, String categoryName, boolean isReconsiled,
+			boolean isRemote, BigDecimal amount) {
+		this.txDate = txDate;
+		this.accountName = accountName;
+		this.categoryName = categoryName;
+		this.isReconsiled = isReconsiled;
+		this.isRemote = isRemote;
+		setAmount(amount);
 	}
 
 	
