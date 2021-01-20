@@ -56,10 +56,10 @@ public class TransactionComparatorServiceImpl implements TransactionComparatorSe
 	@Inject
 	private TransactionsSizeComparator transactionsSizeComparator;
 
-	@Inject
-	public TransactionComparatorServiceImpl(final TransactionsReaderService transactionsReaderService) {
-		
-	}
+//	@Inject
+//	public TransactionComparatorServiceImpl(final TransactionsReaderService transactionsReaderService) {
+//		
+//	}
 
 	/**
 	 * Populating transaction maps using the implementation of {@link TransactionsSourceDao} which is binded in com.google.inject.AbstractModule
@@ -107,7 +107,7 @@ public class TransactionComparatorServiceImpl implements TransactionComparatorSe
 
 		logger.info("Using an instance of [{}] to get the transactions", transactionsSourceJsonDao.getClass().getName());
 
-		transactionsReaderService.populateTxMapsFromSource(getRemoteTransactionMap(), getLocalTransactionMap(), transactionsSourceFileDao, remoteTransactions, localTransactions);
+		transactionsReaderService.populateTxMapsFromSource(getRemoteTransactionMap(), getLocalTransactionMap(), transactionsSourceJsonDao, remoteTransactions, localTransactions);
 
 		logger.info("Found {} remote days with transactions and {} local days with transactions", getRemoteTransactionMap().size(), getLocalTransactionMap().size());
 		if (getRemoteTransactionMap().isEmpty() || getLocalTransactionMap().isEmpty()) {

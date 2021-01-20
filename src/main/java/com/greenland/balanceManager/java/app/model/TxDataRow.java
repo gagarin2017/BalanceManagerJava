@@ -20,10 +20,13 @@ public class TxDataRow {
 
 	private LocalDate txDate;
 	private String accountName;
+	private String description;
+	private String memo;
 	private String categoryName;
+	private boolean isReconsiled;
+	private String tag;
 	private BigDecimal debitAmount;
 	private BigDecimal creditAmount;
-	private boolean isReconsiled;
 	private boolean isRemote;
 	
 	public static final String RECONCILED_FLAG_STRING = "R";
@@ -206,6 +209,48 @@ public class TxDataRow {
 
 	public void setRemote(boolean isRemote) {
 		this.isRemote = isRemote;
+	}
+
+	/**
+	 * @return the description
+	 */
+	public String getDescription() {
+		return description;
+	}
+
+	/**
+	 * @param description the description to set
+	 */
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	/**
+	 * @return the memo
+	 */
+	public String getMemo() {
+		return memo;
+	}
+
+	/**
+	 * @param memo the memo to set
+	 */
+	public void setMemo(String memo) {
+		this.memo = memo;
+	}
+
+	/**
+	 * @return the tag
+	 */
+	public String getTag() {
+		return tag;
+	}
+
+	/**
+	 * @param tag the tag to set
+	 */
+	public void setTag(String tag) {
+		this.tag = tag;
 	}
 
 	/**

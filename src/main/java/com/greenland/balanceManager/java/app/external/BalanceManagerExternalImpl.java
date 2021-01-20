@@ -11,7 +11,10 @@
  */
 package com.greenland.balanceManager.java.app.external;
 
+import java.math.BigDecimal;
 import java.util.List;
+
+import org.json.JSONObject;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -22,7 +25,8 @@ import com.greenland.balanceManager.java.app.model.TxDataRow;
 import com.greenland.balanceManager.java.app.services.TransactionComparatorService;
 
 public class BalanceManagerExternalImpl implements BalanceManagerExternal {
-    private TransactionComparatorService transactionComparatorService;
+   
+	private TransactionComparatorService transactionComparatorService;
 
     public BalanceManagerExternalImpl() {
         Injector injector = Guice.createInjector((Module[])new Module[]{new BalanceManagerJavaAppModule()});
@@ -33,4 +37,9 @@ public class BalanceManagerExternalImpl implements BalanceManagerExternal {
     public List<TxDataRow> getAllTransactions() throws TransactionsNotFoundAtSourceException {
         return this.transactionComparatorService.getAllTransactions();
     }
+
+	@Override
+	public JSONObject getBalanceComparison(final JSONObject remoteTransactions, final JSONObject localTransactions, final BigDecimal startingBalance) throws TransactionsNotFoundAtSourceException {
+		return transactionComparatorService.executeTransactionComparison(remoteTransactions, localTransactions, startingBalance);
+	}
 }

@@ -1,0 +1,39 @@
+{
+    "remoteTransactions" : [{
+		"Account": "Bank acc",
+		"Description": "description",
+		"Category": "Groceries",
+		"Amount": "-15.11",
+		"Clr": "R",
+		"Tag": "tag",
+		"Date": 18643,
+		"Memo": "memo"
+    }, {
+		"Account": "Bank acc",
+		"Description": "description",
+		"Category": "Home insurance",
+		"Amount": "-22.31",
+		"Clr": "R",
+		"Tag": "tag",
+		"Date": 18643,
+		"Memo": "memo"
+    }, {
+		"Account": "Bank acc",
+        "Description": "one month payment ",
+        "Category": "Car insurance",
+        "Amount": "-38.38",
+        "Clr": "R",
+        "Tag": "tag",
+        "Date": 18643,
+        "Memo": "memo"
+	}, {
+		"Account": "Bank acc",
+        "Description": "gp visit",
+        "Category": "doctor",
+        "Amount": "-65.00",
+        "Clr": "R",
+        "Tag": "tag",
+        "Date": 18643,
+        "Memo": "memo"
+	}]
+}

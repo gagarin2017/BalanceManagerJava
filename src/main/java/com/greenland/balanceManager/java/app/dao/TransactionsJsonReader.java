@@ -19,7 +19,19 @@ import com.greenland.balanceManager.java.app.model.TxDataRow;
 
 public class TransactionsJsonReader implements TransactionsSourceJsonDao {
 
-	private static Logger logger = LogManager.getLogger(TransactionsJsonReader.class);
+	public static final String LOCAL_TRANSACTIONS_JSON_KEY = "localTransactions";
+	public static final String REMOTE_TRANSACTIONS_JSON_KEY = "remoteTransactions";
+
+	public static final String TX_DATE_JSON_KEY = "Date";
+	public static final String TX_ACCOUNT_NAME_JSON_KEY = "Account";
+	public static final String TX_DESCRIPTION_JSON_KEY = "Description";
+	public static final String TX_MEMO_JSON_KEY = "Memo";
+	public static final String TX_CATEGORY_NAME_JSON_KEY = "Category";
+	public static final String TX_TAG_JSON_KEY = "Tag";
+	public static final String TX_RECONCILED_JSON_KEY = "Clr";
+	public static final String TX_AMOUNT_JSON_KEY = "Amount";
+
+	public static Logger logger = LogManager.getLogger(TransactionsJsonReader.class);
 
 	@Override
 	public void populateTxMapsFromSource(Map<LocalDate, List<TxDataRow>> remoteTransactionMap,
@@ -27,13 +39,24 @@ public class TransactionsJsonReader implements TransactionsSourceJsonDao {
 			throws TransactionsNotFoundAtSourceException {
 
 		// expecting two JSONObject sources: remote and local
-		if (sources.length == 2 && sources[0] instanceof JSONObject && sources[1] instanceof JSONObject) {
+		if (sources != null && sources.length == 2 && 
+				sources[0] instanceof JSONObject && sources[1] instanceof JSONObject) {
 			
 			final JSONObject remoteTransactionsJson = (JSONObject) sources[0];
 			final JSONObject localTransactionsJson = (JSONObject) sources[1];
 			
-			final JSONArray remoteTransactions = remoteTransactionsJson.getJSONArray("remoteTransactions");
-			final JSONArray localTransactions = localTransactionsJson.getJSONArray("localTransactions");
+			if(transacationsMissing(remoteTransactionsJson, REMOTE_TRANSACTIONS_JSON_KEY)) {
+				throw new TransactionsNotFoundAtSourceException("The sources remote transactions json doesnt contain remote transactions",
+						new IOException());
+			}
+			
+			if(transacationsMissing(localTransactionsJson, LOCAL_TRANSACTIONS_JSON_KEY)) {
+				throw new TransactionsNotFoundAtSourceException("The sources local transactions json doesnt contain local transactions",
+						new IOException());
+			}
+			
+			final JSONArray remoteTransactions = remoteTransactionsJson.getJSONArray(REMOTE_TRANSACTIONS_JSON_KEY);
+			final JSONArray localTransactions = localTransactionsJson.getJSONArray(LOCAL_TRANSACTIONS_JSON_KEY);
 			
 			final Pair<JSONArray, JSONArray> inputTransactions = Pair.of(remoteTransactions, localTransactions);
 
@@ -43,10 +66,31 @@ public class TransactionsJsonReader implements TransactionsSourceJsonDao {
 			logger.debug("Getting local transactions from the passed Json: {}", inputTransactions.getRight());
 			localTransactionMap.putAll(readTransactionsFromJson(inputTransactions.getRight()));
 		} else {
-			throw new TransactionsNotFoundAtSourceException("The sources for the transactions is not provided",
+			throw new TransactionsNotFoundAtSourceException("The sources for the transactions are not provided",
 					new IOException());
 		}
 
+	}
+
+	/**
+	 * @param remoteTransactionsJson
+	 * @return
+	 */
+	private boolean transacationsMissing(final JSONObject remoteTransactionsJson, final String transactionsJsonKey) {
+		
+		final boolean isMissing;
+		
+		final boolean txListMissing = !remoteTransactionsJson.has(transactionsJsonKey);
+		
+		if (txListMissing) {
+			isMissing = true;
+		} else {
+			final Object txsJsonObject = txListMissing ? null : remoteTransactionsJson.get(transactionsJsonKey);
+			final JSONArray txJsonArray = (txsJsonObject != null && txsJsonObject instanceof JSONArray) ? (JSONArray)remoteTransactionsJson.get(transactionsJsonKey) : null;
+			isMissing = (txJsonArray != null && txJsonArray.length() > 0) ? false : true;
+		}
+		
+		return isMissing;
 	}
 
 	/**
@@ -62,14 +106,17 @@ public class TransactionsJsonReader implements TransactionsSourceJsonDao {
 		for (int i = 0; i < transactions.length(); i++) {
 			
 			final JSONObject jsonRow = transactions.getJSONObject(i);
-			final LocalDate txDate = LocalDate.ofEpochDay(jsonRow.getLong("txDate"));
+			final LocalDate txDate = LocalDate.ofEpochDay(jsonRow.getLong(TX_DATE_JSON_KEY));
 			
 			final TxDataRow txDataRow = new TxDataRow();
 			txDataRow.setTxDate(txDate);
-			txDataRow.setAccountName(jsonRow.getString("txAccountName"));
-			txDataRow.setCategoryName(jsonRow.getString("txCategoryName"));
-			txDataRow.setReconsiled(jsonRow.getString("txReconciled"));
-			txDataRow.setAmount(jsonRow.getBigDecimal("txAmount"));
+			txDataRow.setAccountName(jsonRow.getString(TX_ACCOUNT_NAME_JSON_KEY));
+			txDataRow.setDescription(jsonRow.getString(TX_DESCRIPTION_JSON_KEY));
+			txDataRow.setMemo(jsonRow.getString(TX_MEMO_JSON_KEY));
+			txDataRow.setCategoryName(jsonRow.getString(TX_CATEGORY_NAME_JSON_KEY));
+			txDataRow.setTag(jsonRow.getString(TX_TAG_JSON_KEY));
+			txDataRow.setReconsiled(jsonRow.getString(TX_RECONCILED_JSON_KEY));
+			txDataRow.setAmount(jsonRow.getBigDecimal(TX_AMOUNT_JSON_KEY));
 			
 			allRows.add(txDataRow);
         }
