@@ -12,3 +12,4 @@ build
 /.settings
 bin
 WIP_BUGS
+/3_build_fatJar_copy_fatJar.bat
