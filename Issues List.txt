@@ -1,0 +1,2 @@
+- no description on the result json. It returns several lists, but its difficult to understand which transactions are in these lists
+- missing transactions section is a JSON object rather than a list. THis is not convenient
