@@ -1,29 +1,38 @@
 package com.greenland.balanceManager.java.app.services;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.text.NumberFormat;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDate;
-import java.util.Iterator;
 import java.util.stream.Stream;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import com.greenland.balanceManager.java.app.dao.TransactionsJsonReader;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.exc.StreamReadException;
+import com.fasterxml.jackson.databind.DatabindException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.greenland.balanceManager.java.app.CommonUtils;
 import com.greenland.balanceManager.java.app.exceptions.TransactionsNotFoundAtSourceException;
+import com.greenland.balanceManager.java.app.external.domain.DailyTransactions;
+import com.greenland.balanceManager.java.app.external.domain.InputTxData;
+import com.greenland.balanceManager.java.app.external.domain.OutputTxData;
 
 /**
  * @author Jura
@@ -31,165 +40,188 @@ import com.greenland.balanceManager.java.app.exceptions.TransactionsNotFoundAtSo
  */
 public class TransactionComparatorServiceJsonParameterizedTest extends TestBase {
 
-	private static final String SCENARIO_DESC = "Remote transactions [%s], Local transactions [%s]. Starting balance: %s.";
+	private static final String TEST_DATA_DIR = "build\\resources\\intTest";
+	private static final String DATA_JSON_FILE_NAME = "TransactionComparatorService_sc";
+	private static final String RESULT_JSON_FILE_SUFFIX = "_expected";
+	private static final String INPUT_JSON = TEST_DATA_DIR.concat(File.separator).concat(DATA_JSON_FILE_NAME)
+			.concat("%s").concat(".json");
+	private static final String OUTPUT_JSON = TEST_DATA_DIR.concat(File.separator).concat(DATA_JSON_FILE_NAME)
+			.concat("%s").concat(RESULT_JSON_FILE_SUFFIX).concat(".json");
 
 	private TransactionComparatorServiceImpl transactionComparatorService = new TransactionComparatorServiceImpl();
 	
-	private static final String TEST_DATA_DIR = "build\\resources\\intTest";
-	private static final String DATA_REMOTE_TXS_FILE_NAME = "TransactionComparatorService_remote_txs_";
-	private static final String DATA_LOCAL_TXS_FILE_NAME = "TransactionComparatorService_local_txs_";
-	private static final String FS = File.separator;
+	final static ObjectMapper objectMapper;
 	
-	private static final String REMOTE_DATA = TEST_DATA_DIR.concat(FS).concat("%s").concat("%s").concat(".json");
-	
-	private final static JSONParser parser = new JSONParser();
+	static {
+		objectMapper = new ObjectMapper();
+		objectMapper.findAndRegisterModules();
+	}
 	
 	@BeforeEach
 	public void setup() {
 		injector.injectMembers(transactionComparatorService);
 	}
 
-	// Test Data
-	private static final String ACC_NAME_1 = "Bank acc";
-	private static final String DESCRIPTION_1 = "description";
-	private static final String MEMO_1 = "memo";
-	private static final String CATEGORY_NAME_1 = "Category";
-	private static final String TAG_1 = "tag";
-	private static final String RECONCILE_STRING_1 = "R";
-	private static final String TX_AMOUNT_1 = "-15.11";
-
-	@ParameterizedTest(name = "#{index} - Test scenario : {4}")
+	/**
+	 * @ParameterizedTest
+	 * 
+	 * @param scenarioNo
+	 * @param scenarioDesc
+	 * @param inputTransactionsJsonObject
+	 * @param expectedResultJSONString
+	 * @param extraVerifications
+	 * 
+	 * @throws TransactionsNotFoundAtSourceException
+	 * @throws JsonMappingException
+	 * @throws JsonProcessingException
+	 * @throws NoSuchMethodException
+	 * @throws SecurityException
+	 * @throws IllegalAccessException
+	 * @throws IllegalArgumentException
+	 * @throws InvocationTargetException
+	 */
+	@DisplayName("analyzeTransactions should:")
+	@ParameterizedTest(name = "#{0} - {1}")
 	@MethodSource("buildScenariosData")
-	void testCompareTransactions(final JSONObject remoteTransactionsJsonObject, final JSONObject localTransactionsJsonObject, 
-			final BigDecimal startingBalance, final int scenarioNo, final String scenarioDesc) throws TransactionsNotFoundAtSourceException {
+	void testAnalyzeTransactions(final int scenarioNo, final String scenarioDesc,
+			final InputTxData inputTransactionsJsonObject, final String expectedResultJSONString, final boolean extraVerifications)
+			throws TransactionsNotFoundAtSourceException, JsonMappingException, JsonProcessingException,
+			NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException,
+			InvocationTargetException {
 
-		switch (scenarioNo) {
-		case 1:
-			// Method under test + Verifications
-//			assertThat("Remote tx size (days) correct", remoteTransactionMap.size(), is(3));
-//			assertThat("Local tx size (days) correct", localTransactionMap.size(), is(2));
-//
-//			new Expectations() {
-//				{
-//					transactionsSizeComparator.compareTransactionListSizes(remoteTransactionMap, localTransactionMap);
-//					times = 1;
-//
-//					transactionsBalanceAnalyzer.analyzeTransactionBalances(remoteTransactionMap, localTransactionMap,
-//							startingBalance);
-//					times = 1;
-//				}
-//			};
+		// Method under test
+		final OutputTxData result = transactionComparatorService.analyzeTransactions(inputTransactionsJsonObject);
 
-			// Method under test
-			final JSONObject resultJsonObject_01 = transactionComparatorService.executeTransactionComparison(remoteTransactionsJsonObject, localTransactionsJsonObject, startingBalance);
-			assertNotNull(resultJsonObject_01);
-			break;
-		case 2:
-			final JSONObject resultJsonObject_02 = transactionComparatorService.executeTransactionComparison(remoteTransactionsJsonObject, localTransactionsJsonObject, startingBalance);
-			assertNotNull(resultJsonObject_02);
-			break;			
+		// Verifications
+		runCommonValidations(result, expectedResultJSONString);
+		runExtraVerifications(scenarioNo, result, extraVerifications);
+	}
+
+	/**
+	 * IF extra verifications needed, - then run them
+	 * 
+	 * @param scenarioNo
+	 * @param result
+	 * @param extraVerifications
+	 * 
+	 * @throws NoSuchMethodException
+	 * @throws IllegalAccessException
+	 * @throws InvocationTargetException
+	 */
+	private void runExtraVerifications(final int scenarioNo, final OutputTxData result, final boolean extraVerifications)
+			throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+		
+		if (extraVerifications) {
+			final Method verifyMethod = TransactionComparatorServiceJsonParameterizedTest.class
+					.getDeclaredMethod("verifyScenario" + scenarioNo, OutputTxData.class);
+			verifyMethod.invoke(this, result);
 		}
 	}
-	
-    /**
-     * @return
-     * @throws ParseException 
-     * @throws IOException 
-     * @throws FileNotFoundException 
-     */
-    static Stream<Arguments> buildScenariosData() throws FileNotFoundException, IOException, ParseException {
-    	final Object[] scenarioDataArgList01 = buildMapsForScenario1();
-    	final Object[] scenarioDataArgList02 = buildMapsForScenario2();
-    	
-        return Stream.of(
-                arguments(scenarioDataArgList01[0], scenarioDataArgList01[1], scenarioDataArgList01[2], 1, scenarioDataArgList01[3]),
-                arguments(scenarioDataArgList02[0], scenarioDataArgList02[1], scenarioDataArgList02[2], 2, scenarioDataArgList02[3])
-                );
-    }
 
-	private static Object[] buildMapsForScenario2() throws FileNotFoundException, IOException, ParseException {
-		final Object[] argList = new Object[4];
+	/**
+	 * Compare two JSONs actual vs expected
+	 * 
+	 * @param actual
+	 * @param expected
+	 * @throws JsonProcessingException
+	 * @throws JsonMappingException
+	 */
+	private void runCommonValidations(final OutputTxData actual, final String expected)
+			throws JsonProcessingException, JsonMappingException {
 		
-		final String remoteTxsFile = String.format(REMOTE_DATA, DATA_REMOTE_TXS_FILE_NAME, "01");
-		final String localTxsFile = String.format(REMOTE_DATA, DATA_LOCAL_TXS_FILE_NAME, "01");
-        
-		final org.json.simple.JSONObject remoteTxSimpleObj = (org.json.simple.JSONObject)parser.parse(new FileReader(remoteTxsFile));
-		final org.json.simple.JSONObject localTxsSimpleObj = (org.json.simple.JSONObject)parser.parse(new FileReader(localTxsFile));
+		assertNotNull(actual);
+
+		String resultAsString = null;
+
+		try {
+			resultAsString = objectMapper.writeValueAsString(actual);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
 		
-		final JSONObject remoteTxsJson = new JSONObject(remoteTxSimpleObj.toJSONString());
-		final JSONObject localTxsJson = new JSONObject(localTxsSimpleObj.toJSONString());
+		System.out.println("Result \n"+resultAsString);
 		
-//        final JSONArray remoteTxList = (JSONArray)remoteTxsObj.get(TransactionsJsonReader.REMOTE_TRANSACTIONS_JSON_KEY);
-//        final Iterator iterator = remoteTxList.iterator();
-//        while (iterator.hasNext()) {
-//        
-//           System.out.println(iterator.next());
-//        }
+		assertEquals(objectMapper.readTree(resultAsString), objectMapper.readTree(expected));
+	}
+
+	/**
+	 * @return 
+	 * 		the Stream of arguments to be executed by test method
+	 * @throws DatabindException 
+	 * @throws StreamReadException 
+	 * @throws ParseException
+	 * @throws IOException
+	 * @throws FileNotFoundException
+	 */
+	static Stream<Arguments> buildScenariosData() throws StreamReadException, DatabindException, IOException {
+
+		final String scenario1Desc1 = "Return no transactions when Remote and Local have 2 days with matching transactions.";
+		final String scenario1Desc2 = "Return 1 missing transaction when Remote has 4 transactions for 1 day and Local has 3 transactions fot the same day.";
+
+		final Object[] scenarioDataArgList01 = buildParamsForScenario("01", scenario1Desc1, false);
+		final Object[] scenarioDataArgList02 = buildParamsForScenario("02", scenario1Desc2, true);
+
+		return Stream.of(
+				arguments(scenarioDataArgList01[0], 
+						scenarioDataArgList01[1], 
+						scenarioDataArgList01[2],
+						scenarioDataArgList01[3],
+						scenarioDataArgList01[4]),
+				arguments(scenarioDataArgList02[0], 
+						scenarioDataArgList02[1],
+						scenarioDataArgList02[2],
+						scenarioDataArgList02[3],
+						scenarioDataArgList02[4])
+		);
+	}
+
+	/**
+	 * @param scenarioNumber
+	 * @param scenarioDesc
+	 * @param extraVerifications 
+	 * @return Object[] where each element is a parameter for the parameterised
+	 *         test.
+	 * @throws StreamReadException
+	 * @throws DatabindException
+	 * @throws IOException
+	 */
+	private static Object[] buildParamsForScenario(final String scenarioNumber, final String scenarioDesc, final boolean extraVerifications) 
+			throws StreamReadException, DatabindException, IOException {
 		
-		argList[0] = remoteTxsJson;
-		argList[1] = localTxsJson;
-		argList[2] = new BigDecimal("18.11");
-		argList[3] = String.format(SCENARIO_DESC, remoteTxsJson.toMap().values().size(), localTxsJson.toMap().values().size(), NumberFormat.getCurrencyInstance().format(new BigDecimal("18.11")));
+		final Object[] argList = new Object[5];
+
+		final String inputTransactionsJSONFileName = String.format(INPUT_JSON, scenarioNumber);
+		final String expectedOutputJSONFileName = String.format(OUTPUT_JSON, scenarioNumber);
+
+		final ObjectMapper mapper = new ObjectMapper();
+		mapper.findAndRegisterModules();
+
+		// JSON file to Java object
+		InputTxData inputData = InputTxData.builder().build();
+		inputData = mapper.readValue(new File(inputTransactionsJSONFileName), InputTxData.class);
+		
+		final String expectedResultData = new String(Files.readAllBytes(Paths.get(expectedOutputJSONFileName)));
+
+		argList[0] = Integer.valueOf(scenarioNumber);
+		argList[1] = scenarioDesc;
+		argList[2] = inputData;
+		argList[3] = expectedResultData;
+		argList[4] = extraVerifications;
+
 		return argList;
 	}
-    
-	/**
-	 * @return Object[] where each element is a parameter for the parameterised test.
-	 */
-	private static Object[] buildMapsForScenario1() {
-		final Object[] argList = new Object[4];
+	
+	@SuppressWarnings("unused")
+	private boolean verifyScenario2(final OutputTxData outputTxData) {
+		assertThat("only local transactions missing", outputTxData.getMissingTransactions().size(), is(1));
+		assertThat("only 1 day missing", outputTxData.getMissingTransactions().get(CommonUtils.LOCAL_TRANSACTIONS_JSON_KEY).size(), is(1));
+		assertThat("number of days for the group match", outputTxData.getMissingTransactions().get(CommonUtils.LOCAL_TRANSACTIONS_JSON_KEY).size(), is(1));
 		
-		final BigDecimal startingBalance = new BigDecimal("148.23");
-		final JSONObject remoteTxsJson = new JSONObject();
-    	final JSONArray remoteTransactions = new JSONArray();
-    	
-    	final JSONObject remoteTx = new JSONObject();
-    	remoteTx.put(TransactionsJsonReader.TX_DATE_JSON_KEY, LocalDate.now().toEpochDay());
-    	remoteTx.put(TransactionsJsonReader.TX_ACCOUNT_NAME_JSON_KEY, ACC_NAME_1);
-    	remoteTx.put(TransactionsJsonReader.TX_DESCRIPTION_JSON_KEY, DESCRIPTION_1);
-    	remoteTx.put(TransactionsJsonReader.TX_MEMO_JSON_KEY, MEMO_1);
-    	remoteTx.put(TransactionsJsonReader.TX_CATEGORY_NAME_JSON_KEY, CATEGORY_NAME_1);
-    	remoteTx.put(TransactionsJsonReader.TX_TAG_JSON_KEY, TAG_1);
-    	remoteTx.put(TransactionsJsonReader.TX_RECONCILED_JSON_KEY, RECONCILE_STRING_1);
-    	remoteTx.put(TransactionsJsonReader.TX_AMOUNT_JSON_KEY, TX_AMOUNT_1);
-    	
-    	final JSONObject remoteTx1 = new JSONObject();
-    	remoteTx1.put(TransactionsJsonReader.TX_DATE_JSON_KEY, LocalDate.now().toEpochDay());
-    	remoteTx1.put(TransactionsJsonReader.TX_ACCOUNT_NAME_JSON_KEY, ACC_NAME_1);
-    	remoteTx1.put(TransactionsJsonReader.TX_DESCRIPTION_JSON_KEY, DESCRIPTION_1);
-    	remoteTx1.put(TransactionsJsonReader.TX_MEMO_JSON_KEY, MEMO_1);
-    	remoteTx1.put(TransactionsJsonReader.TX_CATEGORY_NAME_JSON_KEY, CATEGORY_NAME_1);
-    	remoteTx1.put(TransactionsJsonReader.TX_TAG_JSON_KEY, TAG_1);
-    	remoteTx1.put(TransactionsJsonReader.TX_RECONCILED_JSON_KEY, RECONCILE_STRING_1);
-    	remoteTx1.put(TransactionsJsonReader.TX_AMOUNT_JSON_KEY, TX_AMOUNT_1);
-    	
-    	remoteTransactions.put(remoteTx);
-    	remoteTxsJson.put(TransactionsJsonReader.REMOTE_TRANSACTIONS_JSON_KEY, remoteTransactions);
-    	System.out.println(remoteTxsJson);
-    	
-    	final JSONObject localTxsJson = new JSONObject();
-    	final JSONArray localTransactions = new JSONArray();
-    	
-    	final JSONObject localTx = new JSONObject();
-    	localTx.put(TransactionsJsonReader.TX_DATE_JSON_KEY, LocalDate.now().toEpochDay());
-    	localTx.put(TransactionsJsonReader.TX_ACCOUNT_NAME_JSON_KEY, ACC_NAME_1);
-    	localTx.put(TransactionsJsonReader.TX_DESCRIPTION_JSON_KEY, DESCRIPTION_1);
-    	localTx.put(TransactionsJsonReader.TX_MEMO_JSON_KEY, MEMO_1);
-    	localTx.put(TransactionsJsonReader.TX_CATEGORY_NAME_JSON_KEY, CATEGORY_NAME_1);
-    	localTx.put(TransactionsJsonReader.TX_TAG_JSON_KEY, TAG_1);
-    	localTx.put(TransactionsJsonReader.TX_RECONCILED_JSON_KEY, RECONCILE_STRING_1);
-    	localTx.put(TransactionsJsonReader.TX_AMOUNT_JSON_KEY, TX_AMOUNT_1);
-    	
-    	localTransactions.put(localTx);
-    	
-    	localTxsJson.put(TransactionsJsonReader.LOCAL_TRANSACTIONS_JSON_KEY, localTransactions);
+		final DailyTransactions actualDateTransactions = outputTxData.getMissingTransactions().get(CommonUtils.LOCAL_TRANSACTIONS_JSON_KEY).get(0);
 		
-		argList[0] = remoteTxsJson;
-		argList[1] = localTxsJson;
-		argList[2] = startingBalance;
-		argList[3] = String.format(SCENARIO_DESC, remoteTxsJson.toMap().values().size(), localTxsJson.toMap().values().size(), NumberFormat.getCurrencyInstance().format(startingBalance));
-		
-		return argList;
+		assertThat("date of missing transactions match", actualDateTransactions.getDate(), is(LocalDate.of(2020, 5, 13)));
+		assertThat("number of transactions for the date match", actualDateTransactions.getTransactions().size(), is(1));
+		return true;
 	}
 
 }

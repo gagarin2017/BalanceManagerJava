@@ -1,0 +1,141 @@
+{
+    "remoteTransactions": [{
+            "date": "02/05/2021",
+            "transactions": [{
+                    "description": "description",
+                    "memo": "memo",
+                    "clr": "R",
+                    "tag": "tag",
+                    "debitAmount": -15.11,
+                    "creditAmount": 0,
+                    "amountAsNumber": 0,
+                    "amountNumberSignedString": "-",
+                    "reconsiled": false,
+                    "remote": false,
+                    "date": "02/05/2021",
+                    "account": "Bank acc",
+                    "category": "Groceries"
+                }, {
+                    "description": "description",
+                    "memo": "memo",
+                    "clr": "R",
+                    "tag": "tag",
+                    "debitAmount": -22.31,
+                    "creditAmount": 0,
+                    "amountAsNumber": 0,
+                    "amountNumberSignedString": "-",
+                    "reconsiled": false,
+                    "remote": false,
+                    "date": "02/05/2021",
+                    "account": "Bank acc",
+                    "category": "Home insurance"
+                }
+            ],
+            "total": 37.42
+        }, {
+            "date": "31/05/2021",
+            "transactions": [{
+                    "description": "one month payment ",
+                    "memo": "memo",
+                    "clr": "R",
+                    "tag": "tag",
+                    "debitAmount": -38.38,
+                    "creditAmount": 0,
+                    "amountAsNumber": 0,
+                    "amountNumberSignedString": "-",
+                    "reconsiled": false,
+                    "remote": false,
+                    "date": "31/05/2021",
+                    "account": "Bank acc",
+                    "category": "Car insurance"
+                }, {
+                    "description": "gp visit",
+                    "memo": "memo",
+                    "clr": "R",
+                    "tag": "tag",
+                    "debitAmount": -65.00,
+                    "creditAmount": 0,
+                    "amountAsNumber": 0,
+                    "amountNumberSignedString": "-",
+                    "reconsiled": false,
+                    "remote": false,
+                    "date": "31/05/2021",
+                    "account": "Bank acc",
+                    "category": "doctor"
+                }
+            ],
+            "total": 103.38
+        }
+    ],
+    "localTransactions": [{
+            "date": "02/05/2021",
+            "transactions": [{
+                    "description": "description",
+                    "memo": "memo",
+                    "clr": "R",
+                    "tag": "tag",
+                    "debitAmount": -15.11,
+                    "creditAmount": 0,
+                    "amountAsNumber": 0,
+                    "amountNumberSignedString": "-",
+                    "reconsiled": false,
+                    "remote": false,
+                    "date": "02/05/2021",
+                    "account": "Bank acc",
+                    "category": "Groceries"
+                }, {
+                    "description": "description",
+                    "memo": "memo",
+                    "clr": "R",
+                    "tag": "tag",
+                    "debitAmount": -22.31,
+                    "creditAmount": 0,
+                    "amountAsNumber": 0,
+                    "amountNumberSignedString": "-",
+                    "reconsiled": false,
+                    "remote": false,
+                    "date": "02/05/2021",
+                    "account": "Bank acc",
+                    "category": "Home insurance"
+                }
+            ],
+            "total": 37.42
+        }, {
+            "date": "31/05/2021",
+            "transactions": [{
+                    "description": "one month payment ",
+                    "memo": "memo",
+                    "clr": "R",
+                    "tag": "tag",
+                    "debitAmount": -38.38,
+                    "creditAmount": 0,
+                    "amountAsNumber": 0,
+                    "amountNumberSignedString": "-",
+                    "reconsiled": false,
+                    "remote": false,
+                    "date": "31/05/2021",
+                    "account": "Bank acc",
+                    "category": "Car insurance"
+                }, {
+                    "description": "gp visit",
+                    "memo": "memo",
+                    "clr": "R",
+                    "tag": "tag",
+                    "debitAmount": -65.00,
+                    "creditAmount": 0,
+                    "amountAsNumber": 0,
+                    "amountNumberSignedString": "-",
+                    "reconsiled": false,
+                    "remote": false,
+                    "date": "31/05/2021",
+                    "account": "Bank acc",
+                    "category": "doctor"
+                }
+            ],
+            "total": 103.38
+        }
+    ],
+    "missingTransactions": {},
+    "errors": [],
+    "infoMessages": ["The considered transaction data range for Remote: 02/05/2021 - 31/05/2021. Size: 2 days with transactions.", "The considered transaction data range for Local subset: 02/05/2021 - 31/05/2021. Size: 2 days with transactions.", "Comparing transactions for each date Remote [2 days with transactions] vs Local [2 days with transactions]."]
+}

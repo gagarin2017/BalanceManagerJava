@@ -23,8 +23,10 @@ import de.vandermeer.asciitable.AsciiTable;
  * Service to draw nice, good looking ASCII table into the logs/console
  * 
  * @author Jura
- *
+ * @deprecated - as its difficult to debug, when throws an error during the render:
+ * 					 "problem creating a border character, did not find character for <null>" 
  */
+@Deprecated
 public class AsciiTableDrawingServiceImpl implements AsciiTableDrawingService {
 	
 	private static Logger logger = LogManager.getLogger(AsciiTableDrawingServiceImpl.class);
@@ -52,7 +54,7 @@ public class AsciiTableDrawingServiceImpl implements AsciiTableDrawingService {
 
 		outputTable.addRule();
 		outputTable.getContext().setWidth(150);
-		logger.debug("\n" + outputTable.render());
+		logger.info("\n" + outputTable.render());
 	}
 	
 	/**
@@ -85,11 +87,11 @@ public class AsciiTableDrawingServiceImpl implements AsciiTableDrawingService {
 			 if (localTransactionsForDate != null) {
 				 addTransactionsWithBalanceForDateRowsToOutput(currentDte, remoteTransactionsForDate, localTransactionsForDate, outputRows, runningBalance);
 			 } else {
-				 logger.error("Local transactions not found for the date: %s", currentDte.format(CommonUtils.DATE_TIME_FORMATTER));
+				 logger.error(String.format("Local transactions not found for the date: %s", currentDte.format(CommonUtils.DATE_TIME_FORMATTER)));
 				 logger.info("Remote transactions:");
 				 
 				 for (final TxDataRow txDataRow : remoteTransactionsForDate.getLeft()) {
-					 logger.info(txDataRow.toStringFull());
+					 logger.info(txDataRow.toString());
 				}
 			 }
 		}

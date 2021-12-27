@@ -6,7 +6,7 @@ package com.greenland.balanceManager.java.app.exceptions;
  * @author Jura
  *
  */
-public class MissingTransactionOnDateException extends RuntimeException {
+public class MissingTransactionOnDateException extends Exception {
 
 	public MissingTransactionOnDateException(final String errorMessage) {
 		super(errorMessage);

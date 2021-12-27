@@ -1,20 +1,28 @@
 package com.greenland.balanceManager.java.app.services;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.NavigableMap;
 import java.util.TreeMap;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.google.inject.Inject;
+import com.greenland.balanceManager.java.app.CommonUtils;
 import com.greenland.balanceManager.java.app.TransactionsUtility;
+import com.greenland.balanceManager.java.app.external.domain.DailyTransactions;
+import com.greenland.balanceManager.java.app.external.domain.OutputTxData;
 import com.greenland.balanceManager.java.app.model.TxDataRow;
 
 /**
@@ -34,29 +42,152 @@ public class TransactionsBalanceAnalyzerImpl implements TransactionsBalanceAnaly
 		this.asciiTableDrawingService = asciiTableDrawingService;
 	}
 
+	@Deprecated
 	@Override
 	public JSONObject analyzeTransactionBalances(final Map<LocalDate, List<TxDataRow>> remoteTransactionMap,
-			final Map<LocalDate, List<TxDataRow>> localTransactionMap, final BigDecimal startingBalance) {
-		
+			final Map<LocalDate, List<TxDataRow>> localTransactionMap, final BigDecimal startingBalance,
+			final Map<String, Map<LocalDate, List<TxDataRow>>> missingTransactions, final List<String> infoMessages,
+			final List<String> errorMessages) {
+
 		logger.info("Starting to calculate balance for remote.");
-		final Map<LocalDate, Pair<List<TxDataRow>, BigDecimal>> remoteTransactionBalances = buildTransactionsBalancesPerDateMap(remoteTransactionMap);
-		
+		final Map<LocalDate, Pair<List<TxDataRow>, BigDecimal>> remoteTransactionBalances = buildTransactionsBalancesPerDateMap(
+				remoteTransactionMap);
+
 		logger.info("Starting to calculate balance for local.");
-		final Map<LocalDate, Pair<List<TxDataRow>, BigDecimal>> localTransactionBalances = buildTransactionsBalancesPerDateMap(localTransactionMap);
-		
+		final Map<LocalDate, Pair<List<TxDataRow>, BigDecimal>> localTransactionBalances = buildTransactionsBalancesPerDateMap(
+				localTransactionMap);
+
+		logger.info("Check if transactions are missing Remote/Local");
+		final Map<LocalDate, Pair<List<TxDataRow>, BigDecimal>> missingTransactionBalances = buildTransactionsBalancesPerDateMap(
+				localTransactionMap);
+
 //		final boolean doRemoteVsLocalBalancesMatch = compareOverallTransactionBalances(remoteTransactionBalances, localTransactionBalances);
+		
+//		asciiTableDrawingService.drawAsciiTable(remoteTransactionBalances, localTransactionBalances, startingBalance);
 
-
-		asciiTableDrawingService.drawAsciiTable(remoteTransactionBalances, localTransactionBalances, startingBalance);
 		final JSONObject resultJSONOBject = new JSONObject();
-		
-		
-		resultJSONOBject.put("JSON1", "Hello World!")
-        .put("JSON2", "Hello my World!")
-        .put("JSON3", new JSONObject()
-             .put("key1", "value1"));
-		
+
+		resultJSONOBject.put(CommonUtils.STARTING_BALANCE_JSON_KEY, startingBalance.setScale(2, RoundingMode.HALF_UP))
+				.put(CommonUtils.REMOTE_TRANSACTIONS_JSON_KEY, createJsonTransactionsArray(remoteTransactionBalances))
+				.put(CommonUtils.LOCAL_TRANSACTIONS_JSON_KEY, createJsonTransactionsArray(localTransactionBalances))
+				.put(CommonUtils.MISSING_TRANSACTIONS_BALANCES_JSON_KEY, createJsonTransactionsArray(missingTransactionBalances))
+				.put(CommonUtils.MISSING_TRANSACTIONS_JSON_KEY, buildMissingTransactionsJsonArray(missingTransactions));
+
 		return resultJSONOBject;
+	}
+	
+	@Override
+	public void analyzeTransactionBalances(final TreeMap<LocalDate, List<TxDataRow>> remoteTransactionMap,
+			final NavigableMap<LocalDate, List<TxDataRow>> localTransactionMap, final Map<String, Map<LocalDate, List<TxDataRow>>> missingTxsMap, 
+			final OutputTxData outputTxData) {
+
+		logger.info("Starting to calculate balance for remote.");
+		final Map<LocalDate, Pair<List<TxDataRow>, BigDecimal>> remoteTransactionBalances = 
+				buildTransactionsBalancesPerDateMap(remoteTransactionMap);
+
+		logger.info("Starting to calculate balance for local.");
+		final Map<LocalDate, Pair<List<TxDataRow>, BigDecimal>> localTransactionBalances = 
+				buildTransactionsBalancesPerDateMap(localTransactionMap);
+		
+		final List<DailyTransactions> remoteTransactions = new ArrayList<>();
+		final List<DailyTransactions> localTransactions = new ArrayList<>();
+
+		final Map<String, List<DailyTransactions>> missingTransactions = new HashMap<>();
+
+		remoteTransactionBalances.forEach((date, transactions) -> {
+			final DailyTransactions dailyTransactions = DailyTransactions.builder().date(date)
+					.transactions(transactions.getLeft()).total(transactions.getRight()).build();
+			remoteTransactions.add(dailyTransactions);
+		});
+		
+		localTransactionBalances.forEach((date, transactions) -> {
+			final DailyTransactions dailyTransactions = DailyTransactions.builder().date(date)
+					.transactions(transactions.getLeft()).total(transactions.getRight()).build();
+			localTransactions.add(dailyTransactions);
+		});
+		
+		for (final Entry<String, Map<LocalDate, List<TxDataRow>>> entry : missingTxsMap.entrySet()) {
+			
+			final List<DailyTransactions> transactions = new ArrayList<>();
+			
+			entry.getValue().forEach((date, txs) -> {
+				final DailyTransactions dailyTransactions = 
+						DailyTransactions.builder().date(date).transactions(txs).build();
+				transactions.add(dailyTransactions);
+			});
+			
+			missingTransactions.put(entry.getKey(), transactions);
+		}
+
+		outputTxData.setRemoteTransactions(remoteTransactions );
+		outputTxData.setLocalTransactions(localTransactions);
+		outputTxData.setMissingTransactions(missingTransactions);
+	}
+
+	/**
+	 * Create a pretty JSON for the missing transactions
+	 * 
+	 * @param missingTransactions
+	 * @return missingTransactions (date : txsOnThisDate) for REMOTE and LOCAL
+	 */
+	private JSONArray buildMissingTransactionsJsonArray(final Map<String, Map<LocalDate, List<TxDataRow>>> missingTransactions) {
+		final JSONArray missingTransactionsGroups = new JSONArray();
+		
+		missingTransactions.forEach((groupName, datesWithTransactions) -> {
+			final JSONObject group = new JSONObject();
+			group.append(CommonUtils.MISSING_TXS_GROUP_NAME_JSON_KEY, groupName);
+			group.append(CommonUtils.MISSING_GROUP_TRANSACTIONS_JSON_KEY, buildDaysWithTransactionsArray(missingTransactions.get(groupName)));
+			missingTransactionsGroups.put(group);
+		});
+		
+		return missingTransactionsGroups;
+	}
+
+	/**
+	 * Create JSON array (date : txsOnThisDate)
+	 * 
+	 * @param map with transaction days
+	 * @return JSON array (date : txsOnThisDate)
+	 */
+	private JSONArray buildDaysWithTransactionsArray(final Map<LocalDate, List<TxDataRow>> map) {
+		final JSONArray transactionDays = new JSONArray();
+		
+		map.forEach((date, transactions) -> {
+			final JSONObject missedDate = new JSONObject();
+			missedDate.append(CommonUtils.MISSED_TRANSACTIONS_DATE_JSON_KEY, date);
+			missedDate.append(CommonUtils.MISSED_TRANSACTIONS_ON_THE_DATE_JSON_KEY, transactions);
+			transactionDays.put(missedDate);
+		});
+		
+		return transactionDays;
+	}
+
+	/**
+	 * Method creates the collection with the transactions per day + total balance for that day
+	 * 
+	 * @param transactionMap
+	 * @return {@link JSONArray}
+	 */
+	private JSONArray createJsonTransactionsArray(final Map<LocalDate, Pair<List<TxDataRow>, BigDecimal>> transactionMap) {
+    	
+		final JSONArray totalTransactions = new JSONArray();
+    	
+    	transactionMap.forEach((date, transactionForDate) -> {
+//    		final JSONObject transactionsPerDay = new JSONObject();
+//    		transactionsPerDay.append(CommonUtils.TOTAL_TX_PER_DAY_JSON_KEY, transactionForDate.getLeft());
+    		
+    		final String txDate = date.toString();
+    		
+    		final JSONObject totalTransactionsForTheDay = new JSONObject();
+    		totalTransactionsForTheDay.put(CommonUtils.TX_DATE_JSON_KEY, txDate);
+    		totalTransactionsForTheDay.put(CommonUtils.TOTAL_AMOUNT_PER_DAY_JSON_KEY, transactionForDate.getRight());
+    		totalTransactionsForTheDay.put(CommonUtils.TX_LIST_PER_DAY_JSON_KEY, transactionForDate.getLeft());
+    		
+    		totalTransactions.put(totalTransactionsForTheDay);
+    	});
+    	
+
+		return totalTransactions;
 	}
 	
 	/**
@@ -87,40 +218,6 @@ public class TransactionsBalanceAnalyzerImpl implements TransactionsBalanceAnaly
 	}
 	
 	/**
-	 * @param remoteTransactionBalances
-	 * @param localTransactionBalances
-	 * @return
-	 */
-//	private boolean compareOverallTransactionBalances(
-//			final Map<LocalDate, Pair<List<TxDataRow>, BigDecimal>> remoteTransactionBalances,
-//			final Map<LocalDate, Pair<List<TxDataRow>, BigDecimal>> localTransactionBalances) {
-//		
-//		final boolean doRemoteVsLocalBalancesMatch;
-//		
-//		BigDecimal remoteTotal = new BigDecimal("0");
-//		BigDecimal localTotal = new BigDecimal("0");
-//		
-//		for (final Entry<LocalDate, Pair<List<TxDataRow>, BigDecimal>> remoteMapEntry : remoteTransactionBalances.entrySet()) {
-//			remoteTotal = remoteTotal.add(remoteMapEntry.getValue().getRight());
-//		}
-//		
-//		for (final Entry<LocalDate, Pair<List<TxDataRow>, BigDecimal>> localMapEntry : localTransactionBalances.entrySet()) {
-//			localTotal = localTotal.add(localMapEntry.getValue().getRight());
-//		}
-//		
-//		if (remoteLocalPositiveAndMatch(remoteTotal, localTotal)) {
-//			logger.info("Overall balances match! We are all good! Remote: {} euros vs Local: {} euros.", remoteTotal, localTotal);
-//			doRemoteVsLocalBalancesMatch = true;
-//		} else {
-//			logger.info("Overall balances 0 or  DID NOT match! Remote: {} euros vs Local: {} euros.", remoteTotal, localTotal);
-////			handleBalancesDidNotMatch();
-//			doRemoteVsLocalBalancesMatch = false;
-//		}
-//		
-//		return doRemoteVsLocalBalancesMatch;
-//	}
-	
-	/**
 	 * Calculate balance for the date by adding Credit and Debit amounts to the startAmount.
 	 * 
 	 * @param transactionsForDate
@@ -142,15 +239,5 @@ public class TransactionsBalanceAnalyzerImpl implements TransactionsBalanceAnaly
 		
 		return finalBalanceForDate;
 	}
-	
-	/**
-	 * @param remoteTotal
-	 * @param localTotal
-	 * @return
-	 */
-//	private boolean remoteLocalPositiveAndMatch(BigDecimal remoteTotal, BigDecimal localTotal) {
-//		return remoteTotal.compareTo(BigDecimal.ZERO) > 0 && localTotal.compareTo(BigDecimal.ZERO) > 0 && remoteTotal.compareTo(localTotal) == 0;
-//	}
-	
 	
 }

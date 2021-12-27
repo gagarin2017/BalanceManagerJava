@@ -1,0 +1,53 @@
+{
+    "remoteAccountTxsData": [{
+            "date": "13/05/2020",
+            "account": "a/c",
+            "description": "desc 1",
+            "amount": "-45.00"
+        }, {
+            "date": "13/05/2020",
+            "account": "a/c",
+            "description": "MEGO\"",
+            "amount": "-0.7"
+        }, {
+            "date": "13/05/2020",
+            "account": "a/c",
+            "description": "ENERTPRE",
+            "amount": "-3.82"
+        }, {
+            "date": "13/05/2020",
+            "account": "a/c",
+            "description": "CHARITY",
+            "amount": "-0.2"
+        }
+    ],
+    "localAccountTxsData": [{
+            "date": "13/05/2020",
+            "account": "acc",
+            "description": "",
+            "memo": "memo 1",
+            "category": "Books & Supplies",
+            "tag": "",
+            "clr": "",
+            "amount": "-45.00"
+        }, {
+            "date": "13/05/2020",
+            "account": "acc",
+            "description": "",
+            "memo": "",
+            "category": "Books & Supplies",
+            "tag": "",
+            "clr": "",
+            "amount": "-0.20"
+        }, {
+            "date": "13/05/2020",
+            "account": "acc",
+            "description": "",
+            "memo": "",
+            "category": "Interest Inc",
+            "tag": "",
+            "clr": "",
+            "amount": "-3.82"
+        }
+    ]
+}

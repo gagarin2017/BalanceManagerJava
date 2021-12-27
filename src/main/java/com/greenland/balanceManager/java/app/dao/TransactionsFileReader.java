@@ -21,6 +21,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.google.inject.Inject;
 import com.greenland.balanceManager.java.app.exceptions.TransactionsNotFoundAtSourceException;
+import com.greenland.balanceManager.java.app.external.domain.OutputTxData;
 import com.greenland.balanceManager.java.app.model.TxDataRow;
 import com.greenland.balanceManager.java.app.services.TransactionDataRowService;
 
@@ -30,6 +31,7 @@ import com.greenland.balanceManager.java.app.services.TransactionDataRowService;
  * @author Jura
  *
  */
+@Deprecated
 public class TransactionsFileReader implements TransactionsSourceFileDao {
 	
 	private static Logger logger = LogManager.getLogger(TransactionsFileReader.class);
@@ -188,6 +190,13 @@ public class TransactionsFileReader implements TransactionsSourceFileDao {
 	
 	public String getConfigPropertiesFileName() {
 		return CONFIG_PROPERTIES_FILE_NAME;
+	}
+
+	@Override
+	public void populateTxMapsFromRemoteApp(Map<LocalDate, List<TxDataRow>> remoteTransactionMap,
+			Map<LocalDate, List<TxDataRow>> localTransactionMap, Object inputTxData, OutputTxData outputTxData) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

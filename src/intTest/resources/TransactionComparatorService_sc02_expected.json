@@ -1,0 +1,139 @@
+{
+    "remoteTransactions": [{
+            "date": "13/05/2020",
+            "transactions": [{
+                    "description": "desc 1",
+                    "memo": null,
+                    "clr": null,
+                    "tag": null,
+                    "debitAmount": -45.00,
+                    "creditAmount": 0,
+                    "remote": false,
+                    "amountNumberSignedString": "-",
+                    "amountAsNumber": 0,
+                    "reconsiled": false,
+                    "date": "13/05/2020",
+                    "account": "a/c",
+                    "category": null
+                }, {
+                    "description": "MEGO\"",
+                    "memo": null,
+                    "clr": null,
+                    "tag": null,
+                    "debitAmount": -0.70,
+                    "creditAmount": 0,
+                    "remote": false,
+                    "amountNumberSignedString": "-",
+                    "amountAsNumber": 0,
+                    "reconsiled": false,
+                    "date": "13/05/2020",
+                    "account": "a/c",
+                    "category": null
+                }, {
+                    "description": "ENERTPRE",
+                    "memo": null,
+                    "clr": null,
+                    "tag": null,
+                    "debitAmount": -3.82,
+                    "creditAmount": 0,
+                    "remote": false,
+                    "amountNumberSignedString": "-",
+                    "amountAsNumber": 0,
+                    "reconsiled": false,
+                    "date": "13/05/2020",
+                    "account": "a/c",
+                    "category": null
+                }, {
+                    "description": "CHARITY",
+                    "memo": null,
+                    "clr": null,
+                    "tag": null,
+                    "debitAmount": -0.20,
+                    "creditAmount": 0,
+                    "remote": false,
+                    "amountNumberSignedString": "-",
+                    "amountAsNumber": 0,
+                    "reconsiled": false,
+                    "date": "13/05/2020",
+                    "account": "a/c",
+                    "category": null
+                }
+            ],
+            "total": 49.72
+        }
+    ],
+    "localTransactions": [{
+            "date": "13/05/2020",
+            "transactions": [{
+                    "description": "",
+                    "memo": "memo 1",
+                    "clr": "",
+                    "tag": "",
+                    "debitAmount": -45.00,
+                    "creditAmount": 0,
+                    "remote": false,
+                    "amountNumberSignedString": "-",
+                    "amountAsNumber": 0,
+                    "reconsiled": false,
+                    "date": "13/05/2020",
+                    "account": "acc",
+                    "category": "Books & Supplies"
+                }, {
+                    "description": "",
+                    "memo": "",
+                    "clr": "",
+                    "tag": "",
+                    "debitAmount": -0.20,
+                    "creditAmount": 0,
+                    "remote": false,
+                    "amountNumberSignedString": "-",
+                    "amountAsNumber": 0,
+                    "reconsiled": false,
+                    "date": "13/05/2020",
+                    "account": "acc",
+                    "category": "Books & Supplies"
+                }, {
+                    "description": "",
+                    "memo": "",
+                    "clr": "",
+                    "tag": "",
+                    "debitAmount": -3.82,
+                    "creditAmount": 0,
+                    "remote": false,
+                    "amountNumberSignedString": "-",
+                    "amountAsNumber": 0,
+                    "reconsiled": false,
+                    "date": "13/05/2020",
+                    "account": "acc",
+                    "category": "Interest Inc"
+                }
+            ],
+            "total": 49.02
+        }
+    ],
+    "missingTransactions": {
+        "localTransactions": [{
+                "date": "13/05/2020",
+                "transactions": [{
+                        "description": "MEGO\"",
+                        "memo": null,
+                        "clr": null,
+                        "tag": null,
+                        "debitAmount": -0.70,
+                        "creditAmount": 0,
+                        "remote": false,
+                        "amountNumberSignedString": "-",
+                        "amountAsNumber": 0,
+                        "reconsiled": false,
+                        "date": "13/05/2020",
+                        "account": "a/c",
+                        "category": null
+                    }
+                ],
+                "total": null
+            }
+        ]
+    },
+    "errors": [],
+    "infoMessages": ["The considered transaction data range for Remote: 13/05/2020 - 13/05/2020. Size: 1 days with transactions.", "The considered transaction data range for Local subset: 13/05/2020 - 13/05/2020. Size: 1 days with transactions.", "Comparing transactions for each date Remote [1 days with transactions] vs Local [1 days with transactions]."]
+}

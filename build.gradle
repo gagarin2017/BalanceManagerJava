@@ -9,8 +9,15 @@ version = '1.0'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
 repositories {
 	jcenter()
+	mavenCentral()
 }
 
 dependencies {
@@ -23,13 +30,25 @@ dependencies {
 	compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.13.0'
 	compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.9'
 	compile group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1'
+	
+	// toxic! delete naxuj!
 	compile group: 'org.json', name: 'json', version: '20190722'
 
 	// https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core
-	compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.12.1'
+	compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.13.0'
 	
 	// https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
-	compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.12.1'
+	compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.13.0'
+	
+	// https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jsr310
+	implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.13.0'
+	
+	// https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jdk8
+	implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jdk8', version: '2.13.0'
+	
+	// https://mvnrepository.com/artifact/com.fasterxml.jackson.module/jackson-module-parameter-names
+	implementation group: 'com.fasterxml.jackson.module', name: 'jackson-module-parameter-names', version: '2.13.0'
+	
 	
 	// https://mvnrepository.com/artifact/com.googlecode.json-simple/json-simple
 	compile group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1.1'
@@ -48,10 +67,19 @@ dependencies {
 //	testCompile group: 'com.adelean', name: 'inject-resources-core', version: '0.1.0'
 //	testCompile group: 'com.adelean', name: 'inject-resources-junit-jupiter', version: '0.1.0'
 	
+	// https://mvnrepository.com/artifact/com.google.guava/guava
+	compile group: 'com.google.guava', name: 'guava', version: '30.1-jre'
 	
 	// mandatory dependencies for using Spock
 	testCompile platform("org.spockframework:spock-bom:2.0-M4-groovy-3.0")
 	testCompile "org.spockframework:spock-core"
+	
+	// Lombok
+	compileOnly 'org.projectlombok:lombok:1.18.20'
+	annotationProcessor 'org.projectlombok:lombok:1.18.20'
+	
+	testCompileOnly 'org.projectlombok:lombok:1.18.20'
+	testAnnotationProcessor 'org.projectlombok:lombok:1.18.20'
 }
 
 application {
@@ -83,7 +111,7 @@ task fatJar(type: Jar) {
 	manifest {
 		attributes 'Implementation-Title': 'Gradle Jar File Example',
 		'Implementation-Version': version,
-		'Main-Class': 'com.greenland.balanceManager.java.app.external.BalanceManagerExternalImpl'
+		'Main-Class': 'com.greenland.balanceManager.java.app.external.BalanceManagerExternal'
 	}
 	baseName = project.name + '-all'
 	from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }

@@ -11,7 +11,6 @@
  */
 package com.greenland.balanceManager.java.app.external;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 import org.json.JSONObject;
@@ -21,6 +20,8 @@ import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.greenland.balanceManager.java.app.BalanceManagerJavaAppModule;
 import com.greenland.balanceManager.java.app.exceptions.TransactionsNotFoundAtSourceException;
+import com.greenland.balanceManager.java.app.external.domain.InputTxData;
+import com.greenland.balanceManager.java.app.external.domain.OutputTxData;
 import com.greenland.balanceManager.java.app.model.TxDataRow;
 import com.greenland.balanceManager.java.app.services.TransactionComparatorService;
 
@@ -38,8 +39,19 @@ public class BalanceManagerExternalImpl implements BalanceManagerExternal {
         return this.transactionComparatorService.getAllTransactions();
     }
 
+    @Deprecated
 	@Override
-	public JSONObject getBalanceComparison(final JSONObject remoteTransactions, final JSONObject localTransactions, final BigDecimal startingBalance) throws TransactionsNotFoundAtSourceException {
-		return transactionComparatorService.executeTransactionComparison(remoteTransactions, localTransactions, startingBalance);
+	public JSONObject getBalanceComparison(final JSONObject remoteTransactionsJsonObject) throws TransactionsNotFoundAtSourceException {
+		return transactionComparatorService.executeTransactionComparison(remoteTransactionsJsonObject);
+	}
+	
+	@Override
+	public OutputTxData analyzeTransactions(final InputTxData remoteTransactionsJsonObject) {
+		return transactionComparatorService.analyzeTransactions(remoteTransactionsJsonObject);
+	}
+	
+	@Override
+	public String analyzeTransactionsAsString(final InputTxData remoteTransactionsJsonObject) {
+		return transactionComparatorService.analyzeTransactions(remoteTransactionsJsonObject).toString();
 	}
 }

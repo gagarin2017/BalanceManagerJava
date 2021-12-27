@@ -7,6 +7,7 @@ import java.util.Map;
 
 import com.greenland.balanceManager.java.app.dao.TransactionsSourceDao;
 import com.greenland.balanceManager.java.app.exceptions.TransactionsNotFoundAtSourceException;
+import com.greenland.balanceManager.java.app.external.domain.OutputTxData;
 import com.greenland.balanceManager.java.app.model.TxDataRow;
 
 /**
@@ -23,12 +24,33 @@ public interface TransactionsReaderService {
 	 * @param remoteTransactionMap
 	 * @param localTransactionMap
 	 * @param transactionsSourceDao - the source where transactions are stored: files, databases, web services etc.
+	 * @param sources
+	 * 
 	 * @throws FileNotFoundException 
 	 */
+	@Deprecated
 	void populateTxMapsFromSource(
 			Map<LocalDate, List<TxDataRow>> remoteTransactionMap,
 			Map<LocalDate, List<TxDataRow>> localTransactionMap, 
 			TransactionsSourceDao transactionsSourceDao,
 			Object... sources) throws TransactionsNotFoundAtSourceException;
+	
+	/**
+	 * Populate transactions maps from the source
+	 * 
+	 * @param remoteTransactionMap
+	 * @param localTransactionMap
+	 * @param transactionsSourceDao - the source where transactions are stored: files, databases, web services etc.
+	 * @param inputTxData
+	 * @param outputTxData
+	 * 
+	 * @throws TransactionsNotFoundAtSourceException
+	 */
+	void populateTxMapsFromSource(
+			Map<LocalDate, List<TxDataRow>> remoteTransactionMap,
+			Map<LocalDate, List<TxDataRow>> localTransactionMap, 
+			TransactionsSourceDao transactionsSourceDao,
+			Object inputTxData,
+			OutputTxData outputTxData) throws TransactionsNotFoundAtSourceException;
 
 }

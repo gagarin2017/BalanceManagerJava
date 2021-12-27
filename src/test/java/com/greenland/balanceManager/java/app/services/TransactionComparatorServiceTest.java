@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.io.FileNotFoundException;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
@@ -33,7 +34,6 @@ import mockit.Tested;
  * @author Jura
  *
  */
-@Disabled
 public class TransactionComparatorServiceTest {
 	
 	@Tested
@@ -61,6 +61,7 @@ public class TransactionComparatorServiceTest {
 	}
 	
     @Test
+	@Disabled("Test is testing the scenario where the transactions are read from the file, which is probably redundant as replaced by JSON read")
     public void executeTransactionComparison_tx_not_found_exception() throws TransactionsNotFoundAtSourceException {
     	// Setup
     	new Expectations() {
@@ -83,8 +84,9 @@ public class TransactionComparatorServiceTest {
         assertEquals(expectedErrorTxt, exception.getMessage());
     }
     
-    @Test
-    public void executeTransactionComparison_remote_tx_found_local_not_found_exception() throws TransactionsNotFoundAtSourceException {
+	@Test
+	@Disabled("Test is testing the scenario where the transactions are read from the file, which is probably redundant as replaced by JSON read")
+	public void executeTransactionComparison_remote_tx_found_local_not_found_exception() throws TransactionsNotFoundAtSourceException {
 		// Setup
     	final TxDataRow txDataRow = new TxDataRow();
     	final List<TxDataRow> txList = Arrays.asList(txDataRow);
@@ -106,7 +108,7 @@ public class TransactionComparatorServiceTest {
     	};
     	
     	// Method under test
-    	Exception exception = assertThrows(TransactionsNotFoundException.class, 
+    	final Exception exception = assertThrows(TransactionsNotFoundException.class, 
     			() -> transactionComparatorService.executeTransactionComparison());
     	
     	final String expectedErrorTxt = String.format(TransactionComparatorServiceImpl.TX_NOT_FOUND_ERROR, 0, 0);
@@ -114,6 +116,7 @@ public class TransactionComparatorServiceTest {
     }
     
     @Test
+    @Disabled("Test is testing the scenario where the transactions are read from the file, which is probably redundant as replaced by JSON read")
     public void executeTransactionComparison_remote_tx_not_found_local_found_exception() throws TransactionsNotFoundAtSourceException {
     	// Setup
     	new Expectations(transactionComparatorService) {
@@ -139,69 +142,6 @@ public class TransactionComparatorServiceTest {
     	final String expectedErrorTxt = String.format(TransactionComparatorServiceImpl.TX_NOT_FOUND_ERROR, 0, 0);
     	assertEquals(expectedErrorTxt, exception.getMessage());
     }
-    
-//    @Test
-//    public void executeTransactionComparison_tx_found_compareTransactions() throws FileNotFoundException {
-//    	// Setup
-//    	final TxDataRow txDataRow = new TxDataRow();
-//    	final List<TxDataRow> txList = Arrays.asList(txDataRow);
-//    	final LocalDate todayDate = LocalDate.now();
-//    	
-//    	remoteTransactionMap.put(todayDate, txList);
-//    	localTransactionMap.put(todayDate, txList);
-//    	
-//    	new Expectations(transactionComparatorService) {
-//    		{
-//    			transactionsReaderService.populateTxMapsFromSource(remoteTransactionMap, localTransactionMap, withInstanceOf(TransactionsSourceDao.class));
-//    			times = 1;
-//    			
-//    			transactionComparatorService.getRemoteTransactionMap();
-//    			result = remoteTransactionMap;
-//    			
-//    			transactionComparatorService.getLocalTransactionMap();
-//    			result = localTransactionMap;
-//    			
-//    			transactionComparatorService.compareRemoteVsLocalTransactions(remoteTransactionMap, localTransactionMap);
-//    			times = 1;
-//    		}
-//    	};
-//    	
-//    	// Method under test
-//    	transactionComparatorService.executeTransactionComparison();
-//    }
-    
-//    @Test
-//    @DisplayName("compareTransactions remote and local tx lists are populated with the same single Transaction.")
-//    public void compareTransactions_remote_local_have_singleSameTransaction() {
-//    	// Setup
-//    	final TxDataRow txDataRow = new TxDataRow();
-//    	final List<TxDataRow> txList = Arrays.asList(txDataRow);
-//    	final LocalDate todayDate = LocalDate.now();
-//    	
-//    	final TreeMap<LocalDate, List<TxDataRow>> remoteTransactionMapSorted = new TreeMap<>();
-//    	remoteTransactionMapSorted.put(todayDate, txList);
-//    	final TreeMap<LocalDate, List<TxDataRow>> localTransactionMapSorted = new TreeMap<>();
-//    	localTransactionMapSorted.put(todayDate, txList);
-//    	
-//    	new Expectations(transactionComparatorService) {
-//    		{
-//    			transactionComparatorService.sortMapByTxDate(remoteTransactionMap);
-//    			result = remoteTransactionMapSorted;
-//    			
-//    			transactionComparatorService.sortMapByTxDate(localTransactionMap);
-//    			result = localTransactionMapSorted;
-//    			
-//    			transactionsSizeComparator.compareTransactionListSizes(remoteTransactionMapSorted, localTransactionMapSorted);
-//    			times = 1;
-//    			
-//    			transactionsBalanceAnalyzer.analyzeTransactionBalances(remoteTransactionMapSorted, localTransactionMapSorted);
-//    			times = 1;
-//    		}
-//    	};
-//    	
-//    	// Method under test
-//    	transactionComparatorService.compareRemoteVsLocalTransactions(remoteTransactionMap, localTransactionMap);
-//    }
     
     @Test
     @DisplayName("sortMapByTxDate passing an empty map")
@@ -268,17 +208,4 @@ public class TransactionComparatorServiceTest {
     	assertThat(resultMap.size(), is(3));
     	assertThat(resultMap, is(expectedMap));
     }
-    
-//    @Test
-//    @DisplayName("analyzeTransactionBalances passing remote and local transactions. Balances match")
-//    public void analyzeTransactionBalances_balancesMatch_success() {
-//    	// Setup
-//    	
-//    	
-//    	// Method under test
-//    	final boolean balanceMatch = 
-//    			transactionsBalanceAnalyzer.analyzeTransactionBalances(remoteTransactionMap, localTransactionMap);    	
-//    	// Verification
-////    	assertTrue(balanceMatch);
-//    }
 }

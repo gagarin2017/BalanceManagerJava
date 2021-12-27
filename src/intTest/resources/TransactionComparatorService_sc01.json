@@ -1,0 +1,79 @@
+{
+    "remoteAccountTxsData": [{
+            "account": "Bank acc",
+            "description": "description",
+            "category": "Groceries",
+            "amount": "-15.11",
+            "clr": "R",
+            "tag": "tag",
+            "date": "02/05/2021",
+            "memo": "memo"
+        }, {
+            "account": "Bank acc",
+            "description": "description",
+            "category": "Home insurance",
+            "amount": "-22.31",
+            "clr": "R",
+            "tag": "tag",
+            "date": "02/05/2021",
+            "memo": "memo"
+        }, {
+            "account": "Bank acc",
+            "description": "one month payment ",
+            "category": "Car insurance",
+            "amount": "-38.38",
+            "clr": "R",
+            "tag": "tag",
+            "date": "31/05/2021",
+            "memo": "memo"
+        }, {
+            "account": "Bank acc",
+            "description": "gp visit",
+            "category": "doctor",
+            "amount": "-65.00",
+            "clr": "R",
+            "tag": "tag",
+            "date": "31/05/2021",
+            "memo": "memo"
+        }
+    ],
+    "localAccountTxsData": [{
+            "date": "02/05/2021",
+            "account": "Bank acc",
+            "description": "description",
+            "memo": "memo",
+            "category": "Groceries",
+            "tag": "tag",
+            "clr": "R",
+            "amount": "-15.11"
+        }, {
+            "account": "Bank acc",
+            "description": "description",
+            "category": "Home insurance",
+            "amount": "-22.31",
+            "clr": "R",
+            "tag": "tag",
+            "date": "02/05/2021",
+            "memo": "memo"
+        }, {
+            "account": "Bank acc",
+            "description": "one month payment ",
+            "category": "Car insurance",
+            "amount": "-38.38",
+            "clr": "R",
+            "tag": "tag",
+            "date": "31/05/2021",
+            "memo": "memo"
+        }, {
+            "account": "Bank acc",
+            "description": "gp visit",
+            "category": "doctor",
+            "amount": "-65.00",
+            "clr": "R",
+            "tag": "tag",
+            "date": "31/05/2021",
+            "memo": "memo"
+        }
+    ],
+    "startingBalance": 15.12
+}

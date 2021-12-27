@@ -58,10 +58,10 @@ public class TransactionComparatorServiceParameterizedTest {
 	    		
 	    		new Expectations() {
 	    			{
-	    				transactionsSizeComparator.compareTransactionListSizes(remoteTransactionMap, localTransactionMap);
+	    				transactionsSizeComparator.compareRemoteVsLocalTransactions(remoteTransactionMap, localTransactionMap, (List<String>)any, (List<String>)any);
 	    				times = 1;
 	    				
-	    				transactionsBalanceAnalyzer.analyzeTransactionBalances(remoteTransactionMap, localTransactionMap, startingBalance);
+	    				transactionsBalanceAnalyzer.analyzeTransactionBalances(remoteTransactionMap, localTransactionMap, startingBalance, (Map<String, Map<LocalDate, List<TxDataRow>>>) any, (List<String>)any, (List<String>)any);
 	    				times = 1;
 	    			}
 	    		};
@@ -81,10 +81,10 @@ public class TransactionComparatorServiceParameterizedTest {
 	    		
 	    		new Expectations() {
 	    			{
-	    				transactionsSizeComparator.compareTransactionListSizes(remoteTransactionMap, localTransactionMap);
+	    				transactionsSizeComparator.compareRemoteVsLocalTransactions(remoteTransactionMap, localTransactionMap, (List<String>)any, (List<String>)any);
 	    				times = 1;
 	    				
-	    				transactionsBalanceAnalyzer.analyzeTransactionBalances(remoteTransactionMap, localTransactionMap, startingBalance);
+	    				transactionsBalanceAnalyzer.analyzeTransactionBalances(remoteTransactionMap, localTransactionMap, startingBalance, (Map<String, Map<LocalDate, List<TxDataRow>>>) any, (List<String>)any, (List<String>)any);
 	    				times = 1;
 	    			}
 	    		};
@@ -105,10 +105,10 @@ public class TransactionComparatorServiceParameterizedTest {
 	    		
 	    		new Expectations() {
 	    			{
-	    				transactionsSizeComparator.compareTransactionListSizes(remoteTransactionMap, localTransactionMap);
+	    				transactionsSizeComparator.compareRemoteVsLocalTransactions(remoteTransactionMap, localTransactionMap, (List<String>)any, (List<String>)any);
 	    				times = 1;
 	    				
-	    				transactionsBalanceAnalyzer.analyzeTransactionBalances(remoteTransactionMap, localTransactionMap, startingBalance);
+	    				transactionsBalanceAnalyzer.analyzeTransactionBalances(remoteTransactionMap, localTransactionMap, startingBalance, (Map<String, Map<LocalDate, List<TxDataRow>>>) any, (List<String>)any, (List<String>)any);
 	    				times = 1;
 	    			}
 	    		};
@@ -127,10 +127,10 @@ public class TransactionComparatorServiceParameterizedTest {
 	        	
 	    		new Expectations(transactionComparatorService) {
 	    			{
-	    				transactionsSizeComparator.compareTransactionListSizes(remoteTransactionMap, localTransactionMap);
+	    				transactionsSizeComparator.compareRemoteVsLocalTransactions(remoteTransactionMap, localTransactionMap, (List<String>)any, (List<String>)any);
 	    				times = 1;
 	    				
-	    				transactionsBalanceAnalyzer.analyzeTransactionBalances(remoteTransactionMap, localTransactionMap, startingBalance);
+	    				transactionsBalanceAnalyzer.analyzeTransactionBalances(remoteTransactionMap, localTransactionMap, startingBalance, (Map<String, Map<LocalDate, List<TxDataRow>>>) any, (List<String>)any, (List<String>)any);
 	    				times = 1;
 	    			}
 	    		};

@@ -22,6 +22,8 @@ import com.greenland.balanceManager.java.app.dao.TransactionsSourceDao;
 import com.greenland.balanceManager.java.app.exceptions.MissingTransactionOnDateException;
 import com.greenland.balanceManager.java.app.exceptions.TransactionsNotFoundAtSourceException;
 import com.greenland.balanceManager.java.app.exceptions.TransactionsNotFoundException;
+import com.greenland.balanceManager.java.app.external.domain.InputTxData;
+import com.greenland.balanceManager.java.app.external.domain.OutputTxData;
 import com.greenland.balanceManager.java.app.model.TxDataRow;
 
 
@@ -77,7 +79,7 @@ public class TransactionComparatorServiceImpl implements TransactionComparatorSe
 	@Override
 	public void executeTransactionComparison() throws TransactionsNotFoundAtSourceException {
 		populateTxDataRows();
-		if(getRemoteTransactionMap().isEmpty() || getLocalTransactionMap().isEmpty()) {
+		if (getRemoteTransactionMap().isEmpty() || getLocalTransactionMap().isEmpty()) {
 			final String errorMessage = String.format(TX_NOT_FOUND_ERROR, remoteTransactionMap.size(), localTransactionMap.size());
 			throw new TransactionsNotFoundException(errorMessage);
 		}
@@ -102,21 +104,93 @@ public class TransactionComparatorServiceImpl implements TransactionComparatorSe
 	}
 
 	@Override
-	public JSONObject executeTransactionComparison(final JSONObject remoteTransactions,	final JSONObject localTransactions,
-			final BigDecimal startingBalance) throws TransactionsNotFoundAtSourceException {
+	@Deprecated
+	public JSONObject executeTransactionComparison(final JSONObject remoteTransactionsJsonObject) throws TransactionsNotFoundAtSourceException {
 
 		logger.info("Using an instance of [{}] to get the transactions", transactionsSourceJsonDao.getClass().getName());
 
-		transactionsReaderService.populateTxMapsFromSource(getRemoteTransactionMap(), getLocalTransactionMap(), transactionsSourceJsonDao, remoteTransactions, localTransactions);
+		transactionsReaderService.populateTxMapsFromSource(getRemoteTransactionMap(), getLocalTransactionMap(), transactionsSourceJsonDao, remoteTransactionsJsonObject);
 
 		logger.info("Found {} remote days with transactions and {} local days with transactions", getRemoteTransactionMap().size(), getLocalTransactionMap().size());
+		
 		if (getRemoteTransactionMap().isEmpty() || getLocalTransactionMap().isEmpty()) {
 			final String errorMessage = String.format(TX_NOT_FOUND_ERROR, remoteTransactionMap.size(),
 					localTransactionMap.size());
 			throw new TransactionsNotFoundException(errorMessage);
 		}
 
+		// TODO; add starting balance to the JSON. Quick patch for now... 
+		final BigDecimal startingBalance = remoteTransactionsJsonObject.has(CommonUtils.STARTING_BALANCE_JSON_KEY)
+				? remoteTransactionsJsonObject.getBigDecimal(CommonUtils.STARTING_BALANCE_JSON_KEY)
+				: BigDecimal.valueOf(100.00);
+		
 		return compareRemoteVsLocalTransactions(getRemoteTransactionMap(), getLocalTransactionMap(), startingBalance);
+	}
+	
+	@Override
+	public OutputTxData analyzeTransactions(final InputTxData inputTransactions) {
+		
+		final OutputTxData outputTxData = OutputTxData.builder().build();
+		
+		logger.info("Using an instance of [{}] to get the transactions", transactionsSourceJsonDao.getClass().getName());
+		
+		transactionsReaderService.populateTxMapsFromSource(getRemoteTransactionMap(), getLocalTransactionMap(), transactionsSourceJsonDao, inputTransactions, outputTxData);
+		
+		logger.info("Found {} remote days with transactions and {} local days with transactions", getRemoteTransactionMap().size(), getLocalTransactionMap().size());
+		
+		if (getRemoteTransactionMap().isEmpty() || getLocalTransactionMap().isEmpty()) {
+			final String errorMessage = String.format(TX_NOT_FOUND_ERROR, remoteTransactionMap.size(), localTransactionMap.size());
+			outputTxData.getErrors().add(errorMessage);
+			throw new TransactionsNotFoundException(errorMessage);
+		}
+		
+		if (outputTxData.getErrors().isEmpty()) {
+			compareRemoteVsLocalTransactions(getRemoteTransactionMap(), getLocalTransactionMap(), outputTxData);
+		}
+		
+		return outputTxData;
+	}
+
+	/**
+	 * @param remoteTransactionMap
+	 * @param localTransactionMap
+	 * @param outputTxData
+	 * @return
+	 */
+	private void compareRemoteVsLocalTransactions(final Map<LocalDate, List<TxDataRow>> remoteTransactionMap,
+			final Map<LocalDate, List<TxDataRow>> localTransactionMap, final OutputTxData outputTxData) {
+
+		final String remoteDateRange = "The considered transaction data range for Remote: %s - %s. Size: %d days with transactions.";
+		final String localDateRange = "The considered transaction data range for Local subset: %s - %s. Size: %d days with transactions.";
+
+		logger.info("Comparing transactions maps. Remote: {} overall transaction. Local: {} overall transactions.", remoteTransactionMap.size(), localTransactionMap.size());
+		
+		// Sort maps
+		final TreeMap<LocalDate, List<TxDataRow>> remoteTransactionMapSorted = sortMapByTxDate(remoteTransactionMap);
+		final TreeMap<LocalDate, List<TxDataRow>> localTransactionMapSorted = sortMapByTxDate(localTransactionMap);
+		
+		// Getting the date range for which we are going to analyse the transactions based on remote tx map date range
+		final LocalDate remoteTrasnactionsStartDate = (LocalDate) remoteTransactionMapSorted.firstKey(); 
+		final LocalDate remoteTrasnactionsEndDate = (LocalDate) remoteTransactionMapSorted.lastKey(); 
+		
+		outputTxData.getInfoMessages().add(
+				String.format(remoteDateRange, 
+						remoteTrasnactionsStartDate.format(CommonUtils.DATE_TIME_FORMATTER),
+						remoteTrasnactionsEndDate.format(CommonUtils.DATE_TIME_FORMATTER),
+						remoteTransactionMap.size()));
+		
+		// Getting local transactions for the same date range as the remote transactions.
+		// Local transaction map seem to have ALL transactions of All times!
+		final NavigableMap<LocalDate, List<TxDataRow>> localTxSubmap = localTransactionMapSorted.subMap(remoteTrasnactionsStartDate, true, remoteTrasnactionsEndDate, true);
+
+		outputTxData.getInfoMessages().add(
+				String.format(localDateRange, 
+				localTxSubmap.firstKey().format(CommonUtils.DATE_TIME_FORMATTER), 
+				localTxSubmap.lastKey().format(CommonUtils.DATE_TIME_FORMATTER),
+				localTxSubmap.size()));
+		
+		final Map<String, Map<LocalDate, List<TxDataRow>>> missingTransactions = transactionsSizeComparator.compareRemoteVsLocalTransactions(remoteTransactionMapSorted, localTxSubmap, outputTxData);
+		transactionsBalanceAnalyzer.analyzeTransactionBalances(remoteTransactionMapSorted, localTxSubmap, missingTransactions, outputTxData);
 	}
 
 	public Map<LocalDate, List<TxDataRow>> getRemoteTransactionMap() {
@@ -131,9 +205,16 @@ public class TransactionComparatorServiceImpl implements TransactionComparatorSe
 	 * @param remoteTransactionMap
 	 * @param localTransactionMap
 	 */
+	@Deprecated
 	public JSONObject compareRemoteVsLocalTransactions(final Map<LocalDate, List<TxDataRow>> remoteTransactionMap,
 			final Map<LocalDate, List<TxDataRow>> localTransactionMap, final BigDecimal startingBalance) {
 		
+		final String remoteDateRange = "The considered transaction data range for Remote: %s - %s. Size: %d days with transactions.";
+		final String localDateRange = "The considered transaction data range for Local subset: %s - %s. Size: %d days with transactions.";
+		
+		final List<String> infoMessages = new ArrayList<String>();
+		final List<String> errorMessages = new ArrayList<String>();
+
 		logger.info("Comparing transactions maps. Remote: {} overall transaction. Local: {} overall transactions.", remoteTransactionMap.size(), localTransactionMap.size());
 		
 		// Sort maps
@@ -144,22 +225,24 @@ public class TransactionComparatorServiceImpl implements TransactionComparatorSe
 		final LocalDate remoteTrasnactionsStartDate = (LocalDate) remoteTransactionMapSorted.firstKey(); 
 		final LocalDate remoteTrasnactionsEndDate = (LocalDate) remoteTransactionMapSorted.lastKey(); 
 		
-		logger.info("The considered transaction data range for Remote: {} - {}. Size: {} days with transactions.", 
-				remoteTrasnactionsStartDate.format(CommonUtils.DATE_TIME_FORMATTER), 
-				remoteTrasnactionsEndDate.format(CommonUtils.DATE_TIME_FORMATTER),
-				remoteTransactionMap.size());
+		infoMessages.add(
+				String.format(remoteDateRange, 
+						remoteTrasnactionsStartDate.format(CommonUtils.DATE_TIME_FORMATTER),
+						remoteTrasnactionsEndDate.format(CommonUtils.DATE_TIME_FORMATTER),
+						remoteTransactionMap.size()));
 		
 		// Getting local transactions for the same date range as the remote transactions.
 		// Local transaction map seem to have ALL transactions of All times!
 		final NavigableMap<LocalDate, List<TxDataRow>> localTxSubmap = localTransactionMapSorted.subMap(remoteTrasnactionsStartDate, true, remoteTrasnactionsEndDate, true);
 
-		logger.info("The considered transaction data range for Local subset: {} - {}. Size: {} days with transactions.", 
+		infoMessages.add(
+				String.format(localDateRange, 
 				localTxSubmap.firstKey().format(CommonUtils.DATE_TIME_FORMATTER), 
 				localTxSubmap.lastKey().format(CommonUtils.DATE_TIME_FORMATTER),
-				localTxSubmap.size());
+				localTxSubmap.size()));
 		
-		transactionsSizeComparator.compareTransactionListSizes(remoteTransactionMapSorted, localTxSubmap);
-		return transactionsBalanceAnalyzer.analyzeTransactionBalances(remoteTransactionMapSorted, localTxSubmap, startingBalance);
+		final Map<String, Map<LocalDate, List<TxDataRow>>> missingTransactions = transactionsSizeComparator.compareRemoteVsLocalTransactions(remoteTransactionMapSorted, localTxSubmap, infoMessages, errorMessages);
+		return transactionsBalanceAnalyzer.analyzeTransactionBalances(remoteTransactionMapSorted, localTxSubmap, startingBalance, missingTransactions, infoMessages, errorMessages);
 	}
 
 
@@ -169,11 +252,12 @@ public class TransactionComparatorServiceImpl implements TransactionComparatorSe
 	 * @param remoteTransactionMap
 	 * @param localTxSubmap
 	 * @return
+	 * @throws MissingTransactionOnDateException 
 	 * 
 	 * @deprecated
 	 */
 	void compareTransactionListSizes(final TreeMap<LocalDate, List<TxDataRow>> remoteTransactionMap,
-			final NavigableMap<LocalDate, List<TxDataRow>> localTxSubmap) {
+			final NavigableMap<LocalDate, List<TxDataRow>> localTxSubmap) throws MissingTransactionOnDateException {
 		
 		logger.debug("Comparing Remote vs Local days with transactions maps sizes.");
 
@@ -200,11 +284,12 @@ public class TransactionComparatorServiceImpl implements TransactionComparatorSe
 	 * 
 	 * @param remoteTransactionMap
 	 * @param localTransactionMap
+	 * @throws MissingTransactionOnDateException 
 	 * 
 	 * @deprecated
 	 */
 	void compareTransactionListSizesPerDay(final Map<LocalDate, List<TxDataRow>> remoteTransactionMap, 
-			final Map<LocalDate, List<TxDataRow>> localTransactionMap) {
+			final Map<LocalDate, List<TxDataRow>> localTransactionMap) throws MissingTransactionOnDateException {
 		
 		logger.info("Comparing transactions for each date Remote [{} days with transactions] vs Local [{} days with transactions].", remoteTransactionMap.size(), localTransactionMap.size());
 		int[] overallTransactions = new int[2];
@@ -225,11 +310,12 @@ public class TransactionComparatorServiceImpl implements TransactionComparatorSe
 	 * 
 	 * @param transactionMap1
 	 * @param transactionMap2
+	 * @throws MissingTransactionOnDateException 
 	 * 
 	 * @deprecated
 	 */
 	private int[] inspectDaysWithTransactions(final Map<LocalDate, List<TxDataRow>> transactionMap1,
-			final Map<LocalDate, List<TxDataRow>> transactionMap2) {
+			final Map<LocalDate, List<TxDataRow>> transactionMap2) throws MissingTransactionOnDateException {
 		
 		int[] overallTransactionsForPeriod = new int[2];
 		

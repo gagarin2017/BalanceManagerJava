@@ -8,22 +8,42 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.Data;
+import lombok.ToString;
 
 /**
  * @author Jura
  *
  */
+@Data
+@ToString
 public class TxDataRow {
 
+	@JsonProperty("date")
+	@JsonFormat
+    (shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
 	private LocalDate txDate;
+	
+	@JsonProperty("account")
 	private String accountName;
 	private String description;
 	private String memo;
+	
+	@JsonProperty("category")
 	private String categoryName;
+	
+	private String clr;
+	
 	private boolean isReconsiled;
+	
 	private String tag;
 	private BigDecimal debitAmount;
 	private BigDecimal creditAmount;
@@ -47,12 +67,6 @@ public class TxDataRow {
 			return amountType;
 		}
 	};
-
-	public String toStringFull() {
-		return "TxDataRow [txDate=" + txDate + ", accountName=" + accountName + ", categoryName=" + categoryName
-				+ ", debitAmount=" + debitAmount + ", creaditAmount=" + creditAmount + ", isReconsiled=" + isReconsiled
-				+ "]";
-	}
 	
 	/**
 	 * @return
@@ -155,102 +169,16 @@ public class TxDataRow {
 		}
 	}
 
-	public LocalDate getTxDate() {
-		return txDate;
-	}
-
-	public void setTxDate(LocalDate txDate) {
-		this.txDate = txDate;
-	}
-
-	public String getAccountName() {
-		return accountName;
-	}
-
-	public void setAccountName(String accountName) {
-		this.accountName = accountName;
-	}
-
-	public String getCategoryName() {
-		return categoryName;
-	}
-
-	public void setCategoryName(String categoryName) {
-		this.categoryName = categoryName;
-	}
-
 	public BigDecimal getDebitAmount() {
 		return debitAmount == null ? BigDecimal.ZERO : debitAmount;
-	}
-
-	public void setDebitAmount(BigDecimal debitAmount) {
-		this.debitAmount = debitAmount;
 	}
 
 	public BigDecimal getCreditAmount() {
 		return creditAmount == null ? BigDecimal.ZERO : creditAmount;
 	}
 
-	public void setCreditAmount(BigDecimal creditAmount) {
-		this.creditAmount = creditAmount;
-	}
-
-	public boolean isReconsiled() {
-		return isReconsiled;
-	}
-
 	public void setReconsiled(final boolean isReconsiled) {
 		this.isReconsiled = isReconsiled;
-	}
-
-	public boolean isRemote() {
-		return isRemote;
-	}
-
-	public void setRemote(boolean isRemote) {
-		this.isRemote = isRemote;
-	}
-
-	/**
-	 * @return the description
-	 */
-	public String getDescription() {
-		return description;
-	}
-
-	/**
-	 * @param description the description to set
-	 */
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	/**
-	 * @return the memo
-	 */
-	public String getMemo() {
-		return memo;
-	}
-
-	/**
-	 * @param memo the memo to set
-	 */
-	public void setMemo(String memo) {
-		this.memo = memo;
-	}
-
-	/**
-	 * @return the tag
-	 */
-	public String getTag() {
-		return tag;
-	}
-
-	/**
-	 * @param tag the tag to set
-	 */
-	public void setTag(String tag) {
-		this.tag = tag;
 	}
 
 	/**
@@ -290,5 +218,29 @@ public class TxDataRow {
 		setAmount(amount);
 	}
 
+	@Override
+	public int hashCode() {
+		return Objects.hash(creditAmount, debitAmount, txDate);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!(obj instanceof TxDataRow)) {
+			return false;
+		}
+		TxDataRow other = (TxDataRow) obj;
+		return Objects.equals(creditAmount, other.creditAmount) && Objects.equals(debitAmount, other.debitAmount)
+				&& Objects.equals(txDate, other.txDate);
+	}
+
+	public void setDebitAmount(final BigDecimal debitAmount) {
+		this.debitAmount = debitAmount != null ? debitAmount.setScale(2) : BigDecimal.valueOf(Double.MIN_VALUE);
+	}
 	
+	public void setCreditAmount(final BigDecimal creditAmount) {
+		this.creditAmount = creditAmount != null ? creditAmount.setScale(2) : BigDecimal.valueOf(Double.MIN_VALUE);
+	}
 }

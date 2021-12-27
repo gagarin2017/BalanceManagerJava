@@ -6,6 +6,8 @@ import java.util.List;
 import org.json.JSONObject;
 
 import com.greenland.balanceManager.java.app.exceptions.TransactionsNotFoundAtSourceException;
+import com.greenland.balanceManager.java.app.external.domain.InputTxData;
+import com.greenland.balanceManager.java.app.external.domain.OutputTxData;
 import com.greenland.balanceManager.java.app.model.TxDataRow;
 
 /**
@@ -22,9 +24,12 @@ public interface TransactionComparatorService {
 	JSONObject executeTransactionComparison(String remoteFileName, String localFileName, BigDecimal startingBalance)
 			throws TransactionsNotFoundAtSourceException;
 	
-	JSONObject executeTransactionComparison(JSONObject remoteTransactions, JSONObject localTransactions, BigDecimal startingBalance)
+	@Deprecated
+	JSONObject executeTransactionComparison(JSONObject remoteTransactionsJsonObject)
 			throws TransactionsNotFoundAtSourceException;
 
 	public List<TxDataRow> getAllTransactions() throws TransactionsNotFoundAtSourceException;
+	
+	OutputTxData analyzeTransactions(final InputTxData remoteTransactions);
 	
 }
