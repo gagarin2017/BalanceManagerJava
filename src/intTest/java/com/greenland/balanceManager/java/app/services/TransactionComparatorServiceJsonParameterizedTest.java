@@ -11,8 +11,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.stream.Stream;
 
@@ -155,11 +153,11 @@ public class TransactionComparatorServiceJsonParameterizedTest extends TestBase 
 	 */
 	static Stream<Arguments> buildScenariosData() throws StreamReadException, DatabindException, IOException {
 
-		final String scenario1Desc1 = "Return no transactions when Remote and Local have 2 days with matching transactions.";
+		final String scenario1Desc1 = "Return no missing transactions when Remote and Local have 2 days with matching transactions.";
 		final String scenario1Desc2 = "Return 1 missing transaction when Remote has 4 transactions for 1 day and Local has 3 transactions fot the same day.";
 
-		final Object[] scenarioDataArgList01 = buildParamsForScenario("01", scenario1Desc1, false);
-		final Object[] scenarioDataArgList02 = buildParamsForScenario("02", scenario1Desc2, true);
+		final Object[] scenarioDataArgList01 = CommonIntTestUtils.buildParamsForScenario("01", INPUT_JSON, OUTPUT_JSON, scenario1Desc1, false);
+		final Object[] scenarioDataArgList02 = CommonIntTestUtils.buildParamsForScenario("02", INPUT_JSON, OUTPUT_JSON, scenario1Desc2, true);
 
 		return Stream.of(
 				arguments(scenarioDataArgList01[0], 
@@ -173,42 +171,6 @@ public class TransactionComparatorServiceJsonParameterizedTest extends TestBase 
 						scenarioDataArgList02[3],
 						scenarioDataArgList02[4])
 		);
-	}
-
-	/**
-	 * @param scenarioNumber
-	 * @param scenarioDesc
-	 * @param extraVerifications 
-	 * @return Object[] where each element is a parameter for the parameterised
-	 *         test.
-	 * @throws StreamReadException
-	 * @throws DatabindException
-	 * @throws IOException
-	 */
-	private static Object[] buildParamsForScenario(final String scenarioNumber, final String scenarioDesc, final boolean extraVerifications) 
-			throws StreamReadException, DatabindException, IOException {
-		
-		final Object[] argList = new Object[5];
-
-		final String inputTransactionsJSONFileName = String.format(INPUT_JSON, scenarioNumber);
-		final String expectedOutputJSONFileName = String.format(OUTPUT_JSON, scenarioNumber);
-
-		final ObjectMapper mapper = new ObjectMapper();
-		mapper.findAndRegisterModules();
-
-		// JSON file to Java object
-		InputTxData inputData = InputTxData.builder().build();
-		inputData = mapper.readValue(new File(inputTransactionsJSONFileName), InputTxData.class);
-		
-		final String expectedResultData = new String(Files.readAllBytes(Paths.get(expectedOutputJSONFileName)));
-
-		argList[0] = Integer.valueOf(scenarioNumber);
-		argList[1] = scenarioDesc;
-		argList[2] = inputData;
-		argList[3] = expectedResultData;
-		argList[4] = extraVerifications;
-
-		return argList;
 	}
 	
 	@SuppressWarnings("unused")
