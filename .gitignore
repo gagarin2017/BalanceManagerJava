@@ -11,5 +11,5 @@ build
 /*.springBeans
 /.settings
 bin
-WIP_BUGS
+/WIP_BUGS
 /3_build_fatJar_copy_fatJar.bat
