@@ -1,2 +1,15 @@
-/main/
-/test/
+# Ignore Gradle project-specific cache directory
+.gradle
+
+# Ignore Gradle build output directory
+build
+*.log
+/target/
+/.classpath
+/*.project
+/.settings
+/*.springBeans
+/.settings
+bin
+/WIP_BUGS
+/3_build_fatJar_copy_fatJar.bat

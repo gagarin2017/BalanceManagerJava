@@ -49,9 +49,6 @@ public class TxDataRow {
 	private BigDecimal creditAmount;
 	private boolean isRemote;
 	
-	@JsonProperty("amount")
-	private String amountAsString;
-	
 	public static final String RECONCILED_FLAG_STRING = "R";
 	
 	private static Logger logger = LogManager.getLogger(TxDataRow.class);

@@ -27,7 +27,8 @@ import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.greenland.balanceManager.java.app.CommonUtils;
-import com.greenland.balanceManager.java.app.exceptions.TransactionsNotFoundAtSourceException;
+import com.greenland.balanceManager.java.app.external.BalanceManagerExternal;
+import com.greenland.balanceManager.java.app.external.BalanceManagerExternalImpl;
 import com.greenland.balanceManager.java.app.external.domain.DailyTransactions;
 import com.greenland.balanceManager.java.app.external.domain.InputTxData;
 import com.greenland.balanceManager.java.app.external.domain.OutputTxData;
@@ -46,7 +47,7 @@ public class TransactionComparatorServiceJsonParameterizedTest extends TestBase 
 	private static final String OUTPUT_JSON = TEST_DATA_DIR.concat(File.separator).concat(DATA_JSON_FILE_NAME)
 			.concat("%s").concat(RESULT_JSON_FILE_SUFFIX).concat(".json");
 
-	private TransactionComparatorServiceImpl transactionComparatorService = new TransactionComparatorServiceImpl();
+	private BalanceManagerExternal balanceManagerExternal = new BalanceManagerExternalImpl();
 	
 	final static ObjectMapper objectMapper;
 	
@@ -57,7 +58,7 @@ public class TransactionComparatorServiceJsonParameterizedTest extends TestBase 
 	
 	@BeforeEach
 	public void setup() {
-		injector.injectMembers(transactionComparatorService);
+		injector.injectMembers(balanceManagerExternal);
 	}
 
 	/**
@@ -69,26 +70,21 @@ public class TransactionComparatorServiceJsonParameterizedTest extends TestBase 
 	 * @param expectedResultJSONString
 	 * @param extraVerifications
 	 * 
-	 * @throws TransactionsNotFoundAtSourceException
 	 * @throws JsonMappingException
 	 * @throws JsonProcessingException
 	 * @throws NoSuchMethodException
-	 * @throws SecurityException
 	 * @throws IllegalAccessException
-	 * @throws IllegalArgumentException
 	 * @throws InvocationTargetException
 	 */
 	@DisplayName("analyzeTransactions should:")
 	@ParameterizedTest(name = "#{0} - {1}")
 	@MethodSource("buildScenariosData")
 	void testAnalyzeTransactions(final int scenarioNo, final String scenarioDesc,
-			final InputTxData inputTransactionsJsonObject, final String expectedResultJSONString, final boolean extraVerifications)
-			throws TransactionsNotFoundAtSourceException, JsonMappingException, JsonProcessingException,
-			NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException,
-			InvocationTargetException {
+			final InputTxData inputTransactionsJsonObject, final String expectedResultJSONString, final boolean extraVerifications) 
+					throws JsonMappingException, JsonProcessingException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
 
 		// Method under test
-		final OutputTxData result = transactionComparatorService.analyzeTransactions(inputTransactionsJsonObject);
+		final OutputTxData result = balanceManagerExternal.analyzeTransactions(inputTransactionsJsonObject);
 
 		// Verifications
 		runCommonValidations(result, expectedResultJSONString);
@@ -128,6 +124,7 @@ public class TransactionComparatorServiceJsonParameterizedTest extends TestBase 
 			throws JsonProcessingException, JsonMappingException {
 		
 		assertNotNull(actual);
+		assertNotNull(expected);
 
 		String resultAsString = null;
 
