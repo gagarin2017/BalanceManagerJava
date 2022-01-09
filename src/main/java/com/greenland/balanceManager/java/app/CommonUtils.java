@@ -6,8 +6,6 @@ import java.time.format.DateTimeFormatter;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import com.greenland.balanceManager.java.app.external.domain.InputTxData;
-
 public interface CommonUtils {
 	
 	public static final String REMOTE_TX_REGEX = "(,)(?=(?:[^\"]|\"[^\"]*\")*$)";

@@ -1,5 +1,7 @@
 package com.greenland.balanceManager.java.app.model;
 
+import static com.greenland.balanceManager.java.app.CommonUtils.DATE_TIME_FORMATTER;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -242,5 +244,42 @@ public class TxDataRow {
 	
 	public void setCreditAmount(final BigDecimal creditAmount) {
 		this.creditAmount = creditAmount != null ? creditAmount.setScale(2) : BigDecimal.valueOf(Double.MIN_VALUE);
+	}
+	
+	/**
+	 * Set TxDate from the passed date string
+	 * 
+	 * @param date
+	 * 			date String
+	 */
+	public void setTxDate(final String date) {
+		this.txDate = LocalDate.parse(date, DATE_TIME_FORMATTER);
+	}
+	
+	/**
+	 * Set TxDate from the passed {@link LocalDate}
+	 * 
+	 * @param date
+	 */
+	public void setTxDate(final LocalDate date) {
+		this.txDate = date;
+	}
+
+	/**
+	 * Set the {@link TxDataRow} amount from the amount string.
+	 * Method will return {Integer.MIN_VALUE} if parsing was unsuccessful
+	 * 
+	 * @param amount
+	 * 			String
+	 */
+	public void setAmount(final String amount) {
+		try {
+			if (amount != null) {
+				this.setAmount(new BigDecimal(amount.replace(",", "").trim()).setScale(2));
+			}
+		} catch (ArithmeticException | NumberFormatException ex) {
+			this.setCreditAmount(new BigDecimal(Integer.MIN_VALUE).setScale(2, BigDecimal.ROUND_HALF_DOWN));
+		}
+		
 	}
 }
